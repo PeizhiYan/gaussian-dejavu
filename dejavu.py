@@ -47,7 +47,7 @@ class GaussianDejavu():
     Gaussian DejaVu Head Avatar Framework
     """
 
-    def __init__(self, network_weights='./network.pt', uv_map_size=300, num_expressions=20):
+    def __init__(self, network_weights='./models/dejavu_network.pt', uv_map_size=300, num_expressions=20):
         """
         
         """
