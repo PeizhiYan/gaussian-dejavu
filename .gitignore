@@ -1,0 +1,6 @@
+__pycache__/
+.ipynb_checkpoints/
+.git/
+dev-notebooks/
+models/FLAME2020/*.pkl
+Personal_Video_DejaVu_Viewer.ipynb
