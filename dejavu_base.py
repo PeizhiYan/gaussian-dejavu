@@ -203,14 +203,15 @@ class Framework():
             camera = prepare_camera(cam, self.device)
             output = render(viewpoint_camera=camera, pc=gaussians, pipe=self.pipeline, 
                             bg_color=torch.tensor(self.bg_color).to(self.device), scaling_modifier=1.0)
-            if return_all:
+            if return_all == True:
                 batch_rendered.append(output)
             else:
                 rendered = output['render'] # [C,H,W]
                 batch_rendered.append(rendered)
-        
-                # stack the rendered images to get the tensor of [N,C,H,W]
-                batch_rendered = torch.stack(batch_rendered, dim=0)
+
+        if return_all == False:
+            # stack the rendered images to get the tensor of [N,C,H,W]
+            batch_rendered = torch.stack(batch_rendered, dim=0)
         
         return batch_rendered
 

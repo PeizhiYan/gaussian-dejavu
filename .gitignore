@@ -3,6 +3,8 @@ __pycache__/
 .git/
 dev-notebooks/
 models/FLAME2020/*.pkl
-Personal_Video_DejaVu_Viewer.ipynb
 /utils/diff-gaussian-rasterization
 /utils/simple-knn
+/examples/experiment.ipynb
+/examples/FLAME_test_code.ipynb
+snapshot_fw.dump

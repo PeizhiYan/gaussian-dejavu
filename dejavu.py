@@ -100,6 +100,8 @@ class GaussianDejavu():
         # Initialize head avatar parameters
         self.mean_uv_offsets = None
         self.mean_shape_coefficients = None
+        self.mean_shape = None
+        self.mean_exp_coefficients = None
         self.global_uv_delta = None
         self.uv_delta_blendmaps = None
 
@@ -141,6 +143,8 @@ class GaussianDejavu():
         with torch.no_grad():
             mean_uv_offsets = None
             mean_shape_coefficients = None
+            mean_shape = None
+            mean_exp_coefficients = None
             videos = list(personal_dataloader.meta_data.keys())
             for video in videos:
                 # randomly sample a batch
@@ -155,16 +159,37 @@ class GaussianDejavu():
                 else: mean_uv_offsets += temp
                 if mean_shape_coefficients is None: mean_shape_coefficients = batch_data['shape'].mean(dim=0) # [100]
                 else: mean_shape_coefficients += batch_data['shape'].mean(dim=0)
-            mean_uv_offsets /= len(videos) # averge on all videos
+                if mean_shape is None: mean_shape = batch_data['vertices'].mean(axis=0) # [V, 3]
+                else: mean_shape += batch_data['vertices'].mean(axis=0)
+                if mean_exp_coefficients is None: mean_exp_coefficients = batch_data['exp'].mean(dim=0) # [50]
+                else: mean_exp_coefficients += batch_data['exp'].mean(dim=0)
+            # averge over all videos
+            mean_uv_offsets /= len(videos)
             mean_shape_coefficients /= len(videos)
+            mean_shape /= len(videos)
+            mean_exp_coefficients /= len(videos)
+            # store the data
             self.mean_uv_offsets = mean_uv_offsets[None]  # [1, S, S, 13]
+            self.mean_shape = mean_shape   # [1, V, 3] np.array
             self.mean_shape_coefficients = mean_shape_coefficients[None] # [1, 100]
+            self.mean_exp_coefficients = mean_exp_coefficients[None]     # [1, 50]
     
     def _render_with_global_offsets_(self, batch_data, batch_uv_delta=None):
         # NOTE: this function is used in personalization training only
         with torch.no_grad():
+            # FLAME reconstruction from coefficients
+            N = batch_data['exp'].shape[0]
+            shape = torch.clone(self.mean_shape_coefficients)    # [1,100]
+            batch_vertices = []
+            for i in range(N):
+                vertices, _, _ = self.flame(shape_params=shape, 
+                                            expression_params=batch_data['exp'][i:i+1,...], 
+                                            pose_params=batch_data['pose'][i:i+1,...], 
+                                            eye_pose_params=batch_data['eye_pose'][i:i+1,...])
+                batch_vertices.append(vertices.cpu().numpy()[0])
+            batch_vertices = np.array(batch_vertices)
             # get initial UV maps from reconstructed FLAME
-            uv_maps = self.framework.create_init_uv_maps(batch_data['vertices']) # [N, S, S, 13]
+            uv_maps = self.framework.create_init_uv_maps(batch_vertices) # [N, S, S, 13]
             # create a copy of the mean uv offsets
             mean_uv_offsets_copy = torch.clone(self.mean_uv_offsets) # [1, S, S, 13]
         if batch_uv_delta is not None:
@@ -323,9 +348,10 @@ class GaussianDejavu():
         try:
             try: os.makedirs(os.path.join(save_path, avatar_name))
             except: print('path exists, files will be overwrite') 
+            #np.save(os.path.join(save_path, avatar_name, 'mean_shape.npy'), self.mean_shape)
             torch.save(self.mean_uv_offsets.cpu(), os.path.join(save_path, avatar_name, 'mean_uv_offsets.pt'))
-            #np.save(os.path.join(save_path, avatar_name, 'mean_shape_vertices.npy'), self.mean_shape_vertices)
             torch.save(self.mean_shape_coefficients.cpu(), os.path.join(save_path, avatar_name, 'mean_shape_coefficients.pt'))
+            torch.save(self.mean_exp_coefficients.cpu(), os.path.join(save_path, avatar_name, 'mean_exp_coefficients.pt'))
             torch.save(self.global_uv_delta.cpu(), os.path.join(save_path, avatar_name, 'global_uv_delta.pt'))
             torch.save(self.uv_delta_blendmaps.cpu(), os.path.join(save_path, avatar_name, 'uv_delta_blendmaps.pt'))
             print(f'Head avatar parameters saved to {os.path.join(save_path, avatar_name)}')
@@ -335,11 +361,14 @@ class GaussianDejavu():
 
     def load_head_avatar(self, save_path, avatar_name):
         try:
-            for cache in [self.mean_uv_offsets, self.mean_shape_coefficients, self.global_uv_delta, self.uv_delta_blendmaps]:
+            for cache in [self.mean_uv_offsets, self.mean_shape_coefficients, self.mean_shape,
+                          self.mean_exp_coefficients, self.global_uv_delta, self.uv_delta_blendmaps]:
                 del cache
                 cache = None
+            #self.mean_shape = np.load(os.path.join(save_path, avatar_name, 'mean_shape.npy'))
             self.mean_uv_offsets = torch.load(os.path.join(save_path, avatar_name, 'mean_uv_offsets.pt')).to(self.device)
             self.mean_shape_coefficients = torch.load(os.path.join(save_path, avatar_name, 'mean_shape_coefficients.pt')).to(self.device)
+            self.mean_exp_coefficients = torch.load(os.path.join(save_path, avatar_name, 'mean_exp_coefficients.pt')).to(self.device)
             self.global_uv_delta = torch.load(os.path.join(save_path, avatar_name, 'global_uv_delta.pt')).to(self.device)
             self.uv_delta_blendmaps = torch.load(os.path.join(save_path, avatar_name, 'uv_delta_blendmaps.pt')).to(self.device)
             print('Head avatar parameters loaded')
@@ -390,7 +419,10 @@ class GaussianDejavu():
 
         # convert to Pytorch tensors
         shape = torch.clone(self.mean_shape_coefficients)     # [1,100]
-        exp = torch.from_numpy(exp).to(self.device)           # [1,50]
+        exp_base = torch.clone(self.mean_exp_coefficients)    # [1,50]
+        exp_drive = torch.from_numpy(exp).to(self.device)     # [1,50]
+        exp_alpha = 0.9
+        exp = exp_base + exp_alpha*exp_drive
         pose = torch.from_numpy(pose).to(self.device)         # [1,6]
         eye_pose = torch.from_numpy(eye_pose).to(self.device) # [1,6]
         cam_pose = torch.from_numpy(cam_pose).to(self.device) # [1,6]
@@ -401,8 +433,10 @@ class GaussianDejavu():
         # FLAME shape rasterization to UV map
         uv_maps = self.framework.create_init_uv_maps(vertices.cpu().numpy())   # [N, S, S, 13]
 
+        # compute blending weights
+        blending_coefficients = F.softmax(exp[:,:self.num_expressions], dim=1)
+
         # expression-aware uv blending
-        blending_coefficients = F.softmax(exp[:,:self.num_expressions], dim=1)   
         blending_coefficients = blending_coefficients.view(N, 1, 1, 1, blending_coefficients.shape[1])
         batch_uv_delta = (blending_coefficients * self.uv_delta_blendmaps).sum(dim=-1)  # [N, S, S, 13]        
         mean_uv_offsets_copy = torch.clone(self.mean_uv_offsets) # [1, S, S, 13]
