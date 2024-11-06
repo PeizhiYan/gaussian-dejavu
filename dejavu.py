@@ -91,16 +91,40 @@ class GaussianDejavu():
         self.framework.set_render_size(512)
         print('Number of Gaussians: ', len(self.framework.uv_rasterizer.valid_coords[0]))
 
-        # Load the trained weights
+        # Load the trained network weights
         self.framework.network = load_model_weights(self.framework.network, weights_path=network_weights)
 
+        # Initialize UV regularization weights
+        self._init_uv_regularization_weights_()
+
+        # Initialize head avatar parameters
+        self.mean_uv_offsets = None
+        self.mean_shape_coefficients = None
+        self.global_uv_delta = None
+        self.uv_delta_blendmaps = None
+
+        print('Gaussian DejaVu Framework Created.')
+
+
+    def _init_uv_regularization_weights_(self):
+        
         # UV position regularization weights
+        try:
+            del self.uv_position_weights
+            self.uv_position_weights = None
+        except:
+            pass
         self.uv_position_weights = np.load('./models/uv_position_weights.npy') # [256,256], resized in next line
         self.uv_position_weights = cv2.resize(self.uv_position_weights, (self.framework.uv_size, self.framework.uv_size))
         with torch.no_grad():
-            self.uv_position_weights = torch.from_numpy(self.uv_position_weights).to(device)    # convert to tensor
+            self.uv_position_weights = torch.from_numpy(self.uv_position_weights).to(self.device)    # convert to tensor
 
         # UV scale regularization weights
+        try:
+            del self.uv_scale_weights
+            self.uv_scale_weights = None
+        except:
+            pass
         uv_llip_mask = cv2.imread('./models/uv_llip_mask.jpg', 0).astype(np.float32) / 255.
         uv_llip_mask = cv2.resize(uv_llip_mask, (self.framework.uv_size, self.framework.uv_size))
         uv_llip_mask = cv2.GaussianBlur(uv_llip_mask, (5, 5), 0)
@@ -109,15 +133,14 @@ class GaussianDejavu():
         uv_scale_weights = uv_scale_weights + 2.0*uv_llip_mask
         uv_scale_weights = cv2.resize(uv_scale_weights, (self.framework.uv_size, self.framework.uv_size))
         with torch.no_grad():
-            uv_scale_weights = torch.from_numpy(uv_scale_weights).to(device)    # convert to tensor
-
-        print('Gaussian DejaVu Framework Created.')
+            self.uv_scale_weights = torch.from_numpy(uv_scale_weights).to(self.device)    # convert to tensor
 
 
     def _compute_average_uv_offsets_(self, personal_dataloader, batch_size=50):
         # NOTE: this function is used in personalization training only
         with torch.no_grad():
             mean_uv_offsets = None
+            mean_shape_coefficients = None
             videos = list(personal_dataloader.meta_data.keys())
             for video in videos:
                 # randomly sample a batch
@@ -130,9 +153,12 @@ class GaussianDejavu():
                 temp = uv_offsets.mean(dim=0) # [S, S, 13]
                 if mean_uv_offsets is None: mean_uv_offsets = temp
                 else: mean_uv_offsets += temp
+                if mean_shape_coefficients is None: mean_shape_coefficients = batch_data['shape'].mean(dim=0) # [100]
+                else: mean_shape_coefficients += batch_data['shape'].mean(dim=0)
             mean_uv_offsets /= len(videos) # averge on all videos
+            mean_shape_coefficients /= len(videos)
             self.mean_uv_offsets = mean_uv_offsets[None]  # [1, S, S, 13]
-    
+            self.mean_shape_coefficients = mean_shape_coefficients[None] # [1, 100]
     
     def _render_with_global_offsets_(self, batch_data, batch_uv_delta=None):
         # NOTE: this function is used in personalization training only
@@ -285,13 +311,10 @@ class GaussianDejavu():
 
 
     def personal_video_training(self, personal_dataloader, batch_size=16, stage_1_steps=300, stage_2_steps=500):
-        
         ## Initialization
         self._compute_average_uv_offsets_(personal_dataloader, batch_size=50)
-
         ## Stage 1: Global Rectification
         self.train_global_offsets(personal_dataloader, batch_size=batch_size, total_steps=stage_1_steps)
-
         ## Stage 2: Expression-Aware Rectification
         self.train_blendmaps(personal_dataloader, batch_size=batch_size, total_steps=stage_2_steps)
 
@@ -301,23 +324,100 @@ class GaussianDejavu():
             try: os.makedirs(os.path.join(save_path, avatar_name))
             except: print('path exists, files will be overwrite') 
             torch.save(self.mean_uv_offsets.cpu(), os.path.join(save_path, avatar_name, 'mean_uv_offsets.pt'))
+            #np.save(os.path.join(save_path, avatar_name, 'mean_shape_vertices.npy'), self.mean_shape_vertices)
+            torch.save(self.mean_shape_coefficients.cpu(), os.path.join(save_path, avatar_name, 'mean_shape_coefficients.pt'))
             torch.save(self.global_uv_delta.cpu(), os.path.join(save_path, avatar_name, 'global_uv_delta.pt'))
             torch.save(self.uv_delta_blendmaps.cpu(), os.path.join(save_path, avatar_name, 'uv_delta_blendmaps.pt'))
             print(f'Head avatar parameters saved to {os.path.join(save_path, avatar_name)}')
         except Exception as e:
-            print(e)
+            print('dejavu.py function save_head_avatar() : ', e)
 
 
     def load_head_avatar(self, save_path, avatar_name):
         try:
+            for cache in [self.mean_uv_offsets, self.mean_shape_coefficients, self.global_uv_delta, self.uv_delta_blendmaps]:
+                del cache
+                cache = None
             self.mean_uv_offsets = torch.load(os.path.join(save_path, avatar_name, 'mean_uv_offsets.pt')).to(self.device)
+            self.mean_shape_coefficients = torch.load(os.path.join(save_path, avatar_name, 'mean_shape_coefficients.pt')).to(self.device)
             self.global_uv_delta = torch.load(os.path.join(save_path, avatar_name, 'global_uv_delta.pt')).to(self.device)
             self.uv_delta_blendmaps = torch.load(os.path.join(save_path, avatar_name, 'uv_delta_blendmaps.pt')).to(self.device)
             print('Head avatar parameters loaded')
+            # check UV gaussian map size
+            uv_map_size = self.mean_uv_offsets.shape[1]
+            if uv_map_size != self.framework.uv_size:
+                self.framework.set_uv_size(uv_map_size)
+                self._init_uv_regularization_weights_()
+                print(f'Size of UV Gaussian map changed to {uv_map_size}x{uv_map_size}')
+                print('Number of Gaussians: ', len(self.framework.uv_rasterizer.valid_coords[0]))
+            # check number of expressions (used in UV blending)
             num_expressions = self.uv_delta_blendmaps.shape[-1]
             if num_expressions != self.num_expressions:
                 self.num_expressions = num_expressions
                 print(f'Number of expression coefficients changed to {num_expressions}.')
         except Exception as e:
-            print(e)
+            print('dejavu.py function load_head_avatar() : ', e)
 
+
+    @torch.no_grad()
+    def drive_head_avatar(self, exp:np.array = None, 
+                                pose:np.array = None, 
+                                eye_pose:np.array = None, 
+                                cam_pose:np.array = None, 
+                                return_all = False):
+        """
+        Use FLAME coefficients and camera pose to drive the Gaussian Dejavu head avatar
+
+        inputs:
+            -      exp: FLAME expression coefficients [1, 50]
+            -     pose: FLAME neck and jaw pose [1, 6]
+            - eye_pose: FLAME eyeballs poses [1, 6]
+            - cam_pose: camera pose [1, 6]   rotation + translation --> [yaw, pitch, roll, dx, dy, dz]
+
+        output:
+            - 
+        """
+        N = 1
+
+        if exp is None:
+            exp = np.zeros([1,50], dtype=np.float32)
+        if pose is None:
+            pose = np.zeros([1,6], dtype=np.float32)
+        if eye_pose is None:
+            eye_pose = np.zeros([1,6], dtype=np.float32)
+        if cam_pose is None:
+            cam_pose = np.array([[0,0,0,0,0,1.0]], dtype=np.float32)
+
+        # convert to Pytorch tensors
+        shape = torch.clone(self.mean_shape_coefficients)     # [1,100]
+        exp = torch.from_numpy(exp).to(self.device)           # [1,50]
+        pose = torch.from_numpy(pose).to(self.device)         # [1,6]
+        eye_pose = torch.from_numpy(eye_pose).to(self.device) # [1,6]
+        cam_pose = torch.from_numpy(cam_pose).to(self.device) # [1,6]
+
+        # FLAME neutral shape reconstruction
+        vertices, _, _ = self.flame(shape_params=shape, expression_params=exp, pose_params=pose, eye_pose_params=eye_pose)
+
+        # FLAME shape rasterization to UV map
+        uv_maps = self.framework.create_init_uv_maps(vertices.cpu().numpy())   # [N, S, S, 13]
+
+        # expression-aware uv blending
+        blending_coefficients = F.softmax(exp[:,:self.num_expressions], dim=1)   
+        blending_coefficients = blending_coefficients.view(N, 1, 1, 1, blending_coefficients.shape[1])
+        batch_uv_delta = (blending_coefficients * self.uv_delta_blendmaps).sum(dim=-1)  # [N, S, S, 13]        
+        mean_uv_offsets_copy = torch.clone(self.mean_uv_offsets) # [1, S, S, 13]
+        uv_delta_maps = mean_uv_offsets_copy + batch_uv_delta    # [N, S, S, 13]
+
+        # add UV offsets to initial uv maps
+        uv_maps_new = self.framework.add_uv_offsts(uv_maps, uv_delta_maps, loc_discount=0.01)
+        
+        # convert UV Gaussian maps to UV Gaussians that support by 3DGS renderer
+        batch_gaussians = self.framework.uv_maps_2_gaussians(uv_maps=uv_maps_new)
+
+        # render
+        batch_rendered = self.framework.render_batch_gaussians(batch_cam_poses = cam_pose, 
+                                                               batch_gaussians = batch_gaussians,
+                                                               return_all = return_all)
+        
+        return batch_rendered
+    

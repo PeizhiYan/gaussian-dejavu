@@ -73,18 +73,10 @@ class Framework():
 
         self.version = '3.1'
         self.device = device
-        self.uv_size = uv_size  # S
         self.uv_rasterizer_device = uv_rasterizer_device # it can be another CUDA device other than self.device
         self.network = EDNet(in_channels=3, out_channels=13, 
                              img_size=320, upmethod='transpose').to(self.device)
-        self.resize_uv_map = Resize((self.uv_size, self.uv_size))
-        self.uv_rasterizer = UV_Rasterizer(obj_path='./models/head_template.obj', 
-                                           uv_size=self.uv_size, 
-                                           device=self.uv_rasterizer_device)
-        self.uv_init_opacity = np.load('./models/uv_init_opacity_weights.npy') # [256,256]
-        self.uv_init_opacity = cv2.resize(self.uv_init_opacity, (self.uv_size, self.uv_size)) # [S,S]
-        self.uv_mouth_interior_mask = torch.from_numpy(1 - self.uv_rasterizer.uv_mask_mouth_interior).to(device) # [S,S]
-        self.uv_mouth_interior_mask = self.uv_mouth_interior_mask.bool()
+        self.set_uv_size(uv_size)
 
         # Gaussian Splatting Renderer settings
         self.set_render_size(512) # default render size is 512x512, can change outside
@@ -101,6 +93,19 @@ class Framework():
                                     1854, 1861, 1831, 1832, 1851, 3500, 2940, 2932, 2931, 2944, 2942]
 
         print(f'Framework v{self.version} initialized.')
+
+    def set_uv_size(self, uv_size=320):
+        self.uv_size = uv_size 
+        self.resize_uv_map = Resize((self.uv_size, self.uv_size))
+        self.uv_rasterizer = UV_Rasterizer(obj_path='./models/head_template.obj', 
+                                           uv_size=self.uv_size, 
+                                           device=self.uv_rasterizer_device)
+        self.uv_init_opacity = None
+        self.uv_init_opacity = np.load('./models/uv_init_opacity_weights.npy') # [256,256]
+        self.uv_init_opacity = cv2.resize(self.uv_init_opacity, (self.uv_size, self.uv_size)) # [S,S]
+        self.uv_mouth_interior_mask = None
+        self.uv_mouth_interior_mask = torch.from_numpy(1 - self.uv_rasterizer.uv_mask_mouth_interior).to(self.device) # [S,S]
+        self.uv_mouth_interior_mask = self.uv_mouth_interior_mask.bool()
 
     def set_render_size(self, render_size=512):
         self.H = self.W = render_size
@@ -182,8 +187,8 @@ class Framework():
         else:
             return batch_gaussians
 
-    def render_batch_gaussians(self, batch_cam_poses, batch_gaussians):
-        # - batch_cam_poses: [n, 6]  torch.tensor  the 6DoF camera poses  
+    def render_batch_gaussians(self, batch_cam_poses, batch_gaussians, return_all=False):
+        # - batch_cam_poses: [n, 6]  torch.tensor  the 6DoF camera poses
         # returns rendered images [N, H, W, 3]   torch.tensor
 
         batch_size = len(batch_cam_poses)
@@ -198,12 +203,15 @@ class Framework():
             camera = prepare_camera(cam, self.device)
             output = render(viewpoint_camera=camera, pc=gaussians, pipe=self.pipeline, 
                             bg_color=torch.tensor(self.bg_color).to(self.device), scaling_modifier=1.0)
-            rendered = output['render'] # [C,H,W]
-            batch_rendered.append(rendered)
+            if return_all:
+                batch_rendered.append(output)
+            else:
+                rendered = output['render'] # [C,H,W]
+                batch_rendered.append(rendered)
         
-        # stack the rendered images to get the tensor of [N,C,H,W]
-        batch_rendered = torch.stack(batch_rendered, dim=0)
-
+                # stack the rendered images to get the tensor of [N,C,H,W]
+                batch_rendered = torch.stack(batch_rendered, dim=0)
+        
         return batch_rendered
 
 

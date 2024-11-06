@@ -4,3 +4,5 @@ __pycache__/
 dev-notebooks/
 models/FLAME2020/*.pkl
 Personal_Video_DejaVu_Viewer.ipynb
+/utils/diff-gaussian-rasterization
+/utils/simple-knn
