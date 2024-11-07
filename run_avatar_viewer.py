@@ -116,6 +116,7 @@ DISPLAY_X = (WINDOW_W - RENDER_SIZE) // 2
 avatar_loaded = False
 display_buffer = np.ones((WINDOW_H, WINDOW_W, 3), dtype=np.float32)
 last_time = time()  # Initialize the last time for FPS calculation
+last_fps = 0
 to_blur = True
 
 
@@ -148,6 +149,7 @@ def open_folder_dialog():
             # load the head avatar
             dejavu.load_head_avatar(save_path=folder_selected, avatar_name='')
             avatar_loaded = True
+            dpg.set_value("gaussians_text", len(dejavu.framework.uv_rasterizer.valid_coords[0]))
             update_image()
         else:
             print(f"The file '{file_to_check}' does not exist in the selected folder.")
@@ -159,7 +161,7 @@ def open_folder_dialog():
 
 def update_image():
     # Callback to update the texture with new image data
-    global avatar_loaded, last_time, to_blur
+    global avatar_loaded, last_time, last_fps, to_blur
 
     if avatar_loaded == False:
         return
@@ -203,10 +205,12 @@ def update_image():
     # Calculate FPS
     current_time = time()
     fps = 1.0 / (current_time - last_time)
+    avg_fps = 0.6*fps + 0.4*last_fps
+    last_fps = avg_fps
     last_time = current_time
 
     # Update the FPS display in Dear PyGui
-    dpg.set_value("fps_text", f"FPS: {fps:.2f}")
+    dpg.set_value("fps_text", f"FPS: {avg_fps:.2f}")
 
 
 def reset_flame_sliders():
@@ -265,7 +269,7 @@ with dpg.window(label="FLAME", width=300, height=450, pos=(5, 5)):
     dpg.add_text("Expression Coefficients")
     for i in range(10):
         dpg.add_slider_float(label=f"{i}", tag=f"expression_{i}",
-                             default_value=0.0, min_value=-1, max_value=1,
+                             default_value=0.0, min_value=-1.5, max_value=1.5,
                              callback=lambda: update_image())
 
     # Jaw up/down
@@ -325,6 +329,9 @@ with dpg.window(label="Render", width=200, height=100, pos=(WINDOW_W - 205, WIND
 
     # Display current FPS
     dpg.add_text("FPS: 0.00", tag="fps_text")
+
+    # Display number of gaussians
+    dpg.add_text("Gaussians: 0", tag="gaussians_text")
 
 
 
