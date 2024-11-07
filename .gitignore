@@ -3,6 +3,7 @@ __pycache__/
 .git/
 dev-notebooks/
 models/FLAME2020/*.pkl
+models/face_landmarker_v2_with_blendshapes.task
 /utils/diff-gaussian-rasterization
 /utils/simple-knn
 examples/experiment.ipynb
