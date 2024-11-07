@@ -14,8 +14,15 @@
 
 **Notations**:
 ⭐ Important 
-✨ Idea
 ❓ Question
+
+
+
+
+
+## ✨ Milestones
+- ```11-06-2024```: Code and avatar viewer demo released.
+
 
 
 
@@ -39,7 +46,8 @@ Please consider citing our work if you find this code useful.
 
 ## 🌱 Todos
 - [x] Avatar viewer demo.
-- [ ] Test on another computer with Ubuntu.
+- [ ] Test on another computer with Ubuntu system.
+- [ ] Convert Mediapipe's blendshapes to FLAME's expression and poses. 
 - [ ] Video head avatar driving demo.
 - [ ] Test on Windows system.
 
