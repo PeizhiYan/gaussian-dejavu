@@ -6,5 +6,5 @@ models/FLAME2020/*.pkl
 /utils/diff-gaussian-rasterization
 /utils/simple-knn
 examples/experiment.ipynb
-examples/FLAME_test_code.ipynb
 snapshot_fw.dump
+examples/FLAME_test_code.ipynb
