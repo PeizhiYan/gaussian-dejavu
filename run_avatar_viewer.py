@@ -245,7 +245,7 @@ GUI
 """
 # Create main window
 dpg.create_context()
-dpg.create_viewport(title='Gaussian Dejavu Head Avatar Demo', width=WINDOW_W, height=WINDOW_H)
+dpg.create_viewport(title='Gaussian Dejavu Head Avatar Viewer', width=WINDOW_W, height=WINDOW_H)
 
 # Create a texture with initial empty data
 with dpg.texture_registry(show=False):
@@ -331,7 +331,7 @@ with dpg.window(label="Render", width=200, height=100, pos=(WINDOW_W - 205, WIND
 # Create a window for avatar selector
 with dpg.window(label="Avatar Selector", width=550, height=90, pos=(WINDOW_W - 555, 5)):
     # Button to open file dialog
-    dpg.add_button(label="Select Avatar Path", callback=open_folder_dialog)
+    dpg.add_button(label="Load Avatar Model", callback=open_folder_dialog)
     # Avatar Path
     dpg.add_text("", tag="avatar_path")
 

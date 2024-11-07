@@ -1,5 +1,7 @@
 # Gaussian Deja-vu 🐈‍⬛
 
+## **[🚀 Project Homepage](https://peizhiyan.github.io/docs/dejavu/index.html)**
+
 ## [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 - **Author**: Peizhi Yan
@@ -40,6 +42,43 @@ Please consider citing our work if you find this code useful.
 - [ ] Test on another computer with Ubuntu.
 - [ ] Video head avatar driving demo.
 - [ ] Test on Windows system.
+
+
+
+
+
+
+## 🧸 How to Use
+
+[Return](#)
+
+⭐ Note that, please set the working directory in the Python code before running it.
+
+For example:
+
+```
+import os, sys
+os.environ['CUDA_VISIBLE_DEVICES'] = '0' # Set the visible CUDA, here we use the second GPU
+WORKING_DIR = '/home/peizhi/Documents/gaussian-dejavu/'
+os.chdir(WORKING_DIR) # change the working directory to the project's absolute path
+```
+
+### Prepare Training Data
+
+Please follow https://github.com/PeizhiYan/flame-head-tracker and our example [```./examples/Personal-Video-Precessing.ipynb```](./examples/Personal-Video-Processing.ipynb) to pre-process your video.
+
+### Personalize Head Avatar
+
+Please follow our example to train the personalized head avatar model:
+- [```./examples/Personalize-Avatar.ipynb```](./examples/Personalize-Avatar.ipynb)
+
+### Avatar Viewer Demo
+
+```
+python run_avatar_viewer.py
+```
+
+We have prepared some head avatar models in the folder ```./saved_avatars/```. Please note that, ```imavatar``` models were trained on the IMAvatar dataset (https://github.com/zhengyuf/IMavatar). 
 
 
 
@@ -156,18 +195,24 @@ Then, uninstall nvdiffrast and reinstall it.
 
 ### Step 3: Download some necessary model files.
 
-⭐ Because of **copyright concerns**, we cannot re-share any of the following model files. Please follow the instructions to download the necessary model file.
+Because of **copyright concerns**, we cannot re-share any of the following model files. Please follow the instructions to download the necessary model file.
 
-- Download ```FLAME 2020 (fixed mouth, improved expressions, more data)``` from https://flame.is.tue.mpg.de/ and extract to ```./models/FLAME2020```
+- ⭐ Download ```FLAME 2020 (fixed mouth, improved expressions, more data)``` from https://flame.is.tue.mpg.de/ and extract to ```./models/FLAME2020```
+    - Note that, the ```./models/head_template.obj``` is the FLAME's template head mesh with some modifications we made. Because it is an edited version, we have to put it here. But remember to request the FLAME model from their official website before using it! The copyright (besides the modifications we made) belongs to the original FLAME copyright owners https://flame.is.tue.mpg.de 
 
 - Download ```face_landmarker.task``` from https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task, rename as ```face_landmarker_v2_with_blendshapes.task```, and save at ```./models/```
 
 
 
+---
 
 
+# ⚖️ Disclaimer
 
 
+This code is provided for **research use only**. All models, datasets, and external code used in this project are the property of their respective owners and are subject to their individual copyright and licensing terms. Please strictly adhere to these copyright requirements.
+
+For **commercial use**, you are required to **collect your own dataset** and train the model independently. Additionally, you must obtain the **necessary commercial licenses** for any third-party dependencies included in this project.
 
 
 
