@@ -67,6 +67,8 @@ os.chdir(WORKING_DIR) # change the working directory to the project's absolute p
 
 Please follow https://github.com/PeizhiYan/flame-head-tracker and our example [```./examples/Personal-Video-Precessing.ipynb```](./examples/Personal-Video-Processing.ipynb) to pre-process your video.
 
+When collecting your video, please consider following this guidance to achieve good reconstruction results [```./assets/personal_video_collection_procedure.pdf```](./assets/personal_video_collection_procedure.pdf)
+
 ### Personalize Head Avatar
 
 Please follow our example to train the personalized head avatar model:
