@@ -1,9 +1,17 @@
+#
+# Peizhi Yan
+# 2024. All rights reserved.
+#
+
+
 ## Enviroment Setup
 import os, sys
 os.environ['CUDA_VISIBLE_DEVICES'] = '0' # Set the visible CUDA, here we use the second GPU
 WORKING_DIR = '/home/peizhi/Documents/gaussian-dejavu/'
 os.chdir(WORKING_DIR) # change the working directory to the project's absolute path
 print("Current Working Directory: ", os.getcwd())
+
+
 sys.path.append(WORKING_DIR)
 sys.path.append('./models')
 sys.path.append('./networks')
@@ -73,8 +81,10 @@ def blur_head_boundary(rendered_img, blur_kernel_size=25, erode_kernel_size=20, 
 
 
 
+"""
+Create Gaussian Dejavu Pipeline
+"""
 dejavu = GaussianDejavu(network_weights='./models/dejavu_network.pt', uv_map_size=120, num_expressions=20)
-
 device = dejavu.device
 
 ## load head avatar
@@ -89,12 +99,20 @@ device = dejavu.device
 
 
 
+
+"""
+GUI Parameters
+"""
 WINDOW_H = 700
 WINDOW_W = 1024
 RENDER_SIZE = dejavu.framework.H
 DISPLAY_Y = (WINDOW_H - RENDER_SIZE) // 2
 DISPLAY_X = (WINDOW_W - RENDER_SIZE) // 2
 
+
+"""
+
+"""
 avatar_loaded = False
 display_buffer = np.ones((WINDOW_H, WINDOW_W, 3), dtype=np.float32)
 last_time = time()  # Initialize the last time for FPS calculation
@@ -104,8 +122,43 @@ to_blur = True
 
 
 
-# Callback to update the texture with new image data
+
+"""
+Callback Functions
+"""
+def open_folder_dialog():
+    # Callback to open a native file dialog for folder selection with a default path
+    global avatar_loaded
+
+    default_path = "./saved_avatars"
+    root = Tk()
+    root.withdraw()  # Hide the root tkinter window
+
+    # Open folder selection dialog with the default path
+    folder_selected = filedialog.askdirectory(initialdir=default_path)  
+    
+    # Update the path display in Dear PyGui
+    if folder_selected:
+        dpg.set_value("avatar_path", f"Avatar Path: \n{folder_selected}")
+        
+        # Check if the specific file exists in the selected folder
+        file_to_check = "uv_delta_blendmaps.pt"
+        if os.path.isfile(os.path.join(folder_selected, file_to_check)):
+            print(f"The file '{file_to_check}' exists in the selected folder.")
+            # load the head avatar
+            dejavu.load_head_avatar(save_path=folder_selected, avatar_name='')
+            avatar_loaded = True
+            update_image()
+        else:
+            print(f"The file '{file_to_check}' does not exist in the selected folder.")
+            dpg.set_value("avatar_path", f"File '{file_to_check}' not found in the given folder!")
+            avatar_loaded = False
+
+    root.destroy()  # Close the tkinter instance
+
+
 def update_image():
+    # Callback to update the texture with new image data
     global avatar_loaded, last_time, to_blur
 
     if avatar_loaded == False:
@@ -186,6 +239,10 @@ def blur_checkbox_handler():
 
 
 
+
+"""
+GUI
+"""
 # Create main window
 dpg.create_context()
 dpg.create_viewport(title='Gaussian Dejavu Head Avatar Demo', width=WINDOW_W, height=WINDOW_H)
@@ -271,42 +328,6 @@ with dpg.window(label="Render", width=200, height=100, pos=(WINDOW_W - 205, WIND
 
 
 
-
-
-
-# Callback to open a native file dialog for folder selection with a default path
-def open_folder_dialog():
-    global avatar_loaded
-
-    default_path = "./saved_avatars"
-    root = Tk()
-    root.withdraw()  # Hide the root tkinter window
-
-    # Open folder selection dialog with the default path
-    folder_selected = filedialog.askdirectory(initialdir=default_path)  
-    
-    # Update the path display in Dear PyGui
-    if folder_selected:
-        dpg.set_value("avatar_path", f"Avatar Path: \n{folder_selected}")
-        
-        # Check if the specific file exists in the selected folder
-        file_to_check = "uv_delta_blendmaps.pt"
-        if os.path.isfile(os.path.join(folder_selected, file_to_check)):
-            print(f"The file '{file_to_check}' exists in the selected folder.")
-            # load the head avatar
-            dejavu.load_head_avatar(save_path=folder_selected, avatar_name='')
-            avatar_loaded = True
-            update_image()
-        else:
-            print(f"The file '{file_to_check}' does not exist in the selected folder.")
-            dpg.set_value("avatar_path", f"File '{file_to_check}' not found in the given folder!")
-            avatar_loaded = False
-
-    root.destroy()  # Close the tkinter instance
-
-
-
-
 # Create a window for avatar selector
 with dpg.window(label="Avatar Selector", width=550, height=90, pos=(WINDOW_W - 555, 5)):
     # Button to open file dialog
@@ -322,7 +343,9 @@ with dpg.window(label="Avatar Selector", width=550, height=90, pos=(WINDOW_W - 5
 
 
 
-
+"""
+Start Demo
+"""
 
 # Set up the initial loop callback
 dpg.set_frame_callback(1, update_image)  # Start the update loop
