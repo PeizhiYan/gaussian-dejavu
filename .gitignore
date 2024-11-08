@@ -10,4 +10,5 @@ snapshot_fw.dump
 examples/FLAME_test_code.ipynb
 saved_avatars/*
 !saved_avatars/placeholder.txt
-/utils
+utils/diff-gaussian-rasterization
+utils/simple-knn
