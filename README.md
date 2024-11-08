@@ -17,7 +17,10 @@
 ❓ Question
 
 
-
+⭐ We suggest shallow copy our repo:
+```
+git clone --depth 1 https://github.com/PeizhiYan/gaussian-dejavu
+```
 
 
 ## ✨ Milestones
