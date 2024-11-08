@@ -4,8 +4,11 @@ __pycache__/
 dev-notebooks/
 models/FLAME2020/*.pkl
 models/face_landmarker_v2_with_blendshapes.task
+models/dejavu_network.pt
 /utils/diff-gaussian-rasterization
 /utils/simple-knn
 examples/experiment.ipynb
 snapshot_fw.dump
 examples/FLAME_test_code.ipynb
+saved_avatars/*
+!saved_avatars/placeholder.txt
