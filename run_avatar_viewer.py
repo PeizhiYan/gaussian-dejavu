@@ -7,12 +7,12 @@
 ## Enviroment Setup
 import os, sys
 os.environ['CUDA_VISIBLE_DEVICES'] = '0' # Set the visible CUDA, here we use the second GPU
-WORKING_DIR = '/home/peizhi/Documents/gaussian-dejavu/'
-os.chdir(WORKING_DIR) # change the working directory to the project's absolute path
+# WORKING_DIR = '/home/peizhi/Documents/gaussian-dejavu/'
+# os.chdir(WORKING_DIR) # change the working directory to the project's absolute path
+# sys.path.append(WORKING_DIR)
 print("Current Working Directory: ", os.getcwd())
 
 
-sys.path.append(WORKING_DIR)
 sys.path.append('./models')
 sys.path.append('./networks')
 sys.path.append('./utils')
