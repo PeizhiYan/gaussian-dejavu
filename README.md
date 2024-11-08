@@ -212,6 +212,18 @@ Because of **copyright concerns**, we cannot re-share any of the following model
 
 - Download ```face_landmarker.task``` from https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task, rename as ```face_landmarker_v2_with_blendshapes.task```, and save at ```./models/```
 
+- Download our network weights and save to ```./models/dejavu_network.pt```
+  - Option 1 (from UBC ECE's server): https://people.ece.ubc.ca/yanpz/DEJAVU/dejavu_network.pt
+  - Option 2 (from Google Drive): 
+  - Option 3 (from Github): https://github.com/PeizhiYan/models_repo/blob/main/gaussian_dejavu/dejavu_network.pt
+
+- (Optional) Download pre-trained avatars and extract to ```./saved_avatars/```
+  - Option 1 (from UBC ECE's server): https://people.ece.ubc.ca/yanpz/DEJAVU/example_avatars.zip
+  - Option 2 (from Google Drive): 
+  - Option 3 (from Github): https://github.com/PeizhiYan/models_repo/blob/main/gaussian_dejavu/
+
+
+
 
 
 ---
