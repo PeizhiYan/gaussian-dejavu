@@ -49,7 +49,7 @@ Please consider citing our work if you find this code useful.
 - [ ] Test on another computer with Ubuntu system.
 - [ ] Convert Mediapipe's blendshapes to FLAME's expression and poses. 
 - [ ] Video head avatar driving demo.
-- [ ] Test on Windows system.
+- [x] Test on Windows system.
 
 
 
@@ -100,8 +100,15 @@ We have prepared some head avatar models in the folder ```./saved_avatars/```. P
 
 ### Prerequisites:
 
-- **GPU**: Nvidia GPU with >= 6GB memory (recommend > 8GB). I tested the code on Nvidia A6000 (48GB) GPU.
-- **OS**: Ubuntu Linux (tested on 22.04 LTS and 24.04 LTS), I haven't tested the code on Windows.
+- **GPU**: 
+  - Nvidia GPU with >= 6GB memory (recommend > 8GB). 
+  - Training needs better GPU, >= 24GB memory is recommended. We tested the code on Nvidia A6000 (48GB) GPU.
+  - We tested inference on RTX3070.
+- **OS**: 
+  - **Ubuntu** Linux is highly recommended (we tested on 22.04 LTS and 24.04 LTS).
+  - We also tested running the inference code on **Windows** system. However, setting up the environment might be a bit more complex.
+
+⭐ We also suggest you to follow this repo https://github.com/ShenhanQian/GaussianAvatars to setup the environment. Otherwise, you can follow the following steps:
 
 ### Step 1: Create a conda environment. 
 
@@ -148,45 +155,14 @@ python -c "import torch; print(torch.cuda.is_available())"
 pip install -r requirements.txt
 ```
 
-#### Nvidia Differentiable Rasterization: nvdiffrast
+**Note that**, by this time we have tested the following versions of ```nvdiffrast``` and ```pytorch3d```:
+- nvdiffrast == **0.3.1**
+- pytorch3d  == **0.7.8**
 
-**Note that**, we use nvdiffrast version **0.3.1**, other versions may also work but not promised.
 
-```
-# Download the nvdiffrast from their official Github repo
-git clone https://github.com/NVlabs/nvdiffrast
 
-# Go to the downloaded directory
-cd nvdiffrast
 
-# Install the package
-pip install .
-
-# Change the directory back
-cd ..
-```
-
-#### Pytorch3D
-
-**Note that**, we use pytorch3d version **0.7.8**, other versions may also work but not promised.
-
-Installing pytorch3d may take a bit of time.
-
-```
-# Download Pytorch3D from their official Github repo
-git clone https://github.com/facebookresearch/pytorch3d
-
-# Go to the downloaded directory
-cd pytorch3d
-
-# Install the package
-pip install .
-
-# Change the directory back
-cd ..
-```
-
-#### Troubleshoot
+#### Troubleshoot (Linux)
 
 Note that the NVCC needs g++ < 12:
 ```
@@ -203,11 +179,11 @@ sudo apt-get install libegl1-mesa-dev
 Then, uninstall nvdiffrast and reinstall it.
 
 
-### Step 3: Download some necessary model files.
+### ⭐ Step 3: Download some necessary model files.
 
 Because of **copyright concerns**, we cannot re-share any of the following model files. Please follow the instructions to download the necessary model file.
 
-- ⭐ Download ```FLAME 2020 (fixed mouth, improved expressions, more data)``` from https://flame.is.tue.mpg.de/ and extract to ```./models/FLAME2020```
+- Download ```FLAME 2020 (fixed mouth, improved expressions, more data)``` from https://flame.is.tue.mpg.de/ and extract to ```./models/FLAME2020```
     - Note that, the ```./models/head_template.obj``` is the FLAME's template head mesh with some modifications we made. Because it is an edited version, we have to put it here. But remember to request the FLAME model from their official website before using it! The copyright (besides the modifications we made) belongs to the original FLAME copyright owners https://flame.is.tue.mpg.de 
 
 - Download ```face_landmarker.task``` from https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task, rename as ```face_landmarker_v2_with_blendshapes.task```, and save at ```./models/```
@@ -216,9 +192,36 @@ Because of **copyright concerns**, we cannot re-share any of the following model
   - Option 1 (from UBC ECE's server): https://people.ece.ubc.ca/yanpz/DEJAVU/dejavu_network.pt
   - Option 2 (from Github): https://github.com/PeizhiYan/models_repo/blob/main/gaussian_dejavu/dejavu_network.pt
 
-- (Optional) Download pre-trained avatars and extract to ```./saved_avatars/```
+- (Optional: for demo) Download pre-trained avatars and extract to ```./saved_avatars/```
   - Option 1 (from UBC ECE's server): https://people.ece.ubc.ca/yanpz/DEJAVU/example_avatars.zip
   - Option 2 (from Github): https://github.com/PeizhiYan/models_repo/blob/main/gaussian_dejavu/
+
+
+The structure of ```./models``` should be:
+```
+./models/
+  ├── dejavu_network.pt
+  ├── face_landmarker_v2_with_blendshapes.task
+  ├── FLAME2020
+  │   ├── female_model.pkl
+  │   ├── generic_model.pkl
+  │   ├── male_model.pkl
+  │   └── Readme.pdf
+  ├── head_template.obj
+  ├── landmark_embedding.npy
+  ├── mediapipe_to_flame
+  │   ├── mappings
+  │   │   ├── bs2exp.npy
+  │   │   ├── bs2eye.npy
+  │   │   └── bs2pose.npy
+  │   ├── MP2FLAME.py
+  │   └── README.md
+  ├── uv_face_weights.npy
+  ├── uv_init_opacity_weights.npy
+  ├── uv_llip_mask.jpg
+  └── uv_position_weights.npy
+```
+
 
 
 
