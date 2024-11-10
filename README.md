@@ -96,7 +96,7 @@ We have prepared some head avatar models in the folder ```./saved_avatars/```. P
 
 
 
-## 🟠 Environment
+## 🟠 Environment Setup
 
 
 ### Prerequisites:
