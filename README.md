@@ -182,7 +182,7 @@ sudo apt-get install libegl1-mesa-dev
 Then, uninstall nvdiffrast and reinstall it.
 
 
-### ⭐ Step 3: Download some necessary model files.
+## ⭐ Download some necessary model files.
 
 Because of **copyright concerns**, we cannot re-share any of the following model files. Please follow the instructions to download the necessary model file.
 
