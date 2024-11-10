@@ -115,74 +115,74 @@ We have prepared some head avatar models in the folder ```./saved_avatars/```. P
 <details>
   <summary>Click to expand</summary>
 
-    ### Step 1: Create a conda environment. 
+  ### Step 1: Create a conda environment. 
 
-    ```
-    conda create --name dejavu -y python=3.10
-    conda activate dejavu
-    ```
+  ```
+  conda create --name dejavu -y python=3.10
+  conda activate dejavu
+  ```
 
-    ### Step 2: Install necessary libraries.
+  ### Step 2: Install necessary libraries.
 
-    #### Nvidia CUDA compiler (11.7)
+  #### Nvidia CUDA compiler (11.7)
 
-    ```
-    conda install -c "nvidia/label/cuda-11.7.1" cuda-toolkit ninja
+  ```
+  conda install -c "nvidia/label/cuda-11.7.1" cuda-toolkit ninja
 
-    # (Linux only) ----------
-    ln -s "$CONDA_PREFIX/lib" "$CONDA_PREFIX/lib64"  # to avoid error "/usr/bin/ld: cannot find -lcudart"
+  # (Linux only) ----------
+  ln -s "$CONDA_PREFIX/lib" "$CONDA_PREFIX/lib64"  # to avoid error "/usr/bin/ld: cannot find -lcudart"
 
-    # Install NVCC (optional, if the NVCC is not installed successfully try this)
-    conda install -c conda-forge cudatoolkit=11.7 cudatoolkit-dev=11.7
-    ```
+  # Install NVCC (optional, if the NVCC is not installed successfully try this)
+  conda install -c conda-forge cudatoolkit=11.7 cudatoolkit-dev=11.7
+  ```
 
-    After install, check NVCC version (should be 11.7):
+  After install, check NVCC version (should be 11.7):
 
-    ```
-    nvcc --version
-    ```
+  ```
+  nvcc --version
+  ```
 
-    #### PyTorch (2.0 with CUDA)
+  #### PyTorch (2.0 with CUDA)
 
-    ```
-    pip install torch==2.0.1 torchvision --index-url https://download.pytorch.org/whl/cu117
-    ```
+  ```
+  pip install torch==2.0.1 torchvision --index-url https://download.pytorch.org/whl/cu117
+  ```
 
-    Now let's test if PyTorch is able to access CUDA device, the result should be ```True```:
+  Now let's test if PyTorch is able to access CUDA device, the result should be ```True```:
 
-    ```
-    python -c "import torch; print(torch.cuda.is_available())"
-    ```
+  ```
+  python -c "import torch; print(torch.cuda.is_available())"
+  ```
 
-    #### Some Python packages
+  #### Some Python packages
 
-    ```
-    pip install -r requirements.txt
-    ```
+  ```
+  pip install -r requirements.txt
+  ```
 
-    **Note that**, by this time we have tested the following versions of ```nvdiffrast``` and ```pytorch3d```:
-    - nvdiffrast == **0.3.1**
-    - pytorch3d  == **0.7.8**
-
-
+  **Note that**, by this time we have tested the following versions of ```nvdiffrast``` and ```pytorch3d```:
+  - nvdiffrast == **0.3.1**
+  - pytorch3d  == **0.7.8**
 
 
-    #### Troubleshoot (Linux)
 
-    Note that the NVCC needs g++ < 12:
-    ```
-    sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 50
-    sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 50
-    sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-11 50
-    ```
 
-    If there is problem with **nvdiffrast**, check whether it is related to the EGL header file in the error message. If it is, install the EGL Development Libraries (for Ubuntu/Debian-based systems):
-    
-    ```bash
-    sudo apt-get update
-    sudo apt-get install libegl1-mesa-dev
-    ```
-    Then, uninstall nvdiffrast and reinstall it.
+  #### Troubleshoot (Linux)
+
+  Note that the NVCC needs g++ < 12:
+  ```
+  sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 50
+  sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 50
+  sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-11 50
+  ```
+
+  If there is problem with **nvdiffrast**, check whether it is related to the EGL header file in the error message. If it is, install the EGL Development Libraries (for Ubuntu/Debian-based systems):
+  
+  ```bash
+  sudo apt-get update
+  sudo apt-get install libegl1-mesa-dev
+  ```
+  Then, uninstall nvdiffrast and reinstall it.
 
 </details>
 
