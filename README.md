@@ -94,6 +94,14 @@ python run_avatar_viewer.py
 We have prepared some head avatar models in the folder ```./saved_avatars/```. Please note that, ```imavatar``` models were trained on the IMAvatar dataset (https://github.com/zhengyuf/IMavatar). 
 
 
+### Realtime Avatar Webcam-Driving Demo
+
+> **Pipeline Diagram:**
+> ![webcam_driving_pipeline](./assets/dejavu_realtime_driving_demo.png)
+
+
+
+
 
 
 ## 🟠 Environment Setup
