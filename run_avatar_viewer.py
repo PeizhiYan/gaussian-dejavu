@@ -1,6 +1,7 @@
 #
-# Peizhi Yan
-# 2024. All rights reserved.
+# Gaussian DejaVu Head Avatar Viewer
+# 
+# Copyright 2024. Peizhi Yan
 #
 
 
@@ -87,13 +88,9 @@ Create Gaussian Dejavu Pipeline
 dejavu = GaussianDejavu(network_weights='./models/dejavu_network.pt', uv_map_size=120, num_expressions=20)
 device = dejavu.device
 
-## load head avatar
-#dejavu.load_head_avatar(save_path='./saved_avatars', avatar_name='peizhi')
-#dejavu.load_head_avatar(save_path='./saved_avatars', avatar_name='imavatar-subject1')
-#dejavu.load_head_avatar(save_path='./saved_avatars', avatar_name='imavatar-subject2')
-#dejavu.load_head_avatar(save_path='./saved_avatars', avatar_name='peizhi-uv180')
-#dejavu.load_head_avatar(save_path='./saved_avatars', avatar_name='imavatar-subject1-uv180')
-#dejavu.load_head_avatar(save_path='./saved_avatars', avatar_name='imavatar-subject2-uv180')
+## load head avatar (for debugging)
+# dejavu.load_head_avatar(save_path='./saved_avatars', avatar_name='peizhi-uv120')
+# dejavu.load_head_avatar(save_path='./saved_avatars', avatar_name='peizhi-uv180')
 
 
 
@@ -111,15 +108,17 @@ DISPLAY_X = (WINDOW_W - RENDER_SIZE) // 2
 
 
 """
-
+Global Variables
 """
+#avatar_loaded = True ; dejavu.load_head_avatar(save_path='./saved_avatars', avatar_name='peizhi-uv120')
 avatar_loaded = False
 display_buffer = np.ones((WINDOW_H, WINDOW_W, 3), dtype=np.float32)
 last_time = time()  # Initialize the last time for FPS calculation
 last_fps = 0
 to_blur = True
-
-
+prev_x, prev_y = None, None
+is_dragging_in_canvas = False
+last_update_time = time()
 
 
 
@@ -236,8 +235,69 @@ def blur_checkbox_handler():
     global to_blur
     to_blur = not to_blur
     update_image()
-    
 
+
+def on_drag_start(sender, app_data):
+    global last_mouse_pos, is_dragging_in_canvas
+    if dpg.is_item_hovered("_canvas_window"):  # Check if mouse is over canvas window
+        is_dragging_in_canvas = True
+        last_mouse_pos = dpg.get_mouse_pos()
+        # print('STARTED')
+
+
+def on_drag(sender, app_data):
+    global last_mouse_pos, is_dragging_in_canvas, last_update_time
+    #current_x, current_y = app_data[1], app_data[2]
+    
+    if not is_dragging_in_canvas:
+        return
+
+    current_mouse_pos = dpg.get_mouse_pos()
+    if last_mouse_pos is None:
+        last_mouse_pos = current_mouse_pos
+    else:
+        # compute the mouse move offsets
+        delta_x = current_mouse_pos[0] - last_mouse_pos[0]
+        delta_y = current_mouse_pos[1] - last_mouse_pos[1]
+
+        yaw = dpg.get_value("yaw")
+        pitch = dpg.get_value("pitch")
+
+        SENSITIVITY = 0.0016
+        yaw = min(0.3, max(-0.3, yaw + delta_x * SENSITIVITY))
+        pitch = min(0.3, max(-0.3, pitch + delta_y * SENSITIVITY))
+
+        dpg.set_value("yaw", yaw)
+        dpg.set_value("pitch", pitch)
+
+        # Check the time since the last update to limit the frequency of updates
+        current_time = time()
+        if current_time - last_update_time > 0.05:
+            update_image()
+            last_update_time = current_time
+
+        last_mouse_pos = current_mouse_pos # update previous locations
+
+
+def on_drag_stop(sender, app_data):
+    global last_mouse_pos, is_dragging_in_canvas
+    is_dragging_in_canvas = False
+    last_mouse_pos = None
+    # print('STOPED')
+
+
+def on_mouse_wheel(sender, app_data):
+    global last_update_time
+    delta = -1*app_data
+    if dpg.is_item_hovered("_canvas_window"):
+        radius = dpg.get_value(f"radius")
+        SENSITIVITY = 0.01 # scroll wheel sensitivity
+        radius = min(1.5, max(0.5, radius + delta * SENSITIVITY))
+        dpg.set_value("radius", radius)
+        current_time = time()
+        if current_time - last_update_time > 0.05:
+            update_image()
+            last_update_time = current_time
 
 
 
@@ -255,11 +315,11 @@ dpg.create_viewport(title='Gaussian Dejavu Head Avatar Viewer', width=WINDOW_W, 
 with dpg.texture_registry(show=False):
     dpg.add_raw_texture(WINDOW_W, WINDOW_H, display_buffer, format=dpg.mvFormat_Float_rgb, tag="_texture")
 
+
 # Create main window with image display
-with dpg.window(label="canvas", tag="_canvas_window", width=WINDOW_W, height=WINDOW_H, 
+with dpg.window(label="canvas", tag="_canvas_window", width=WINDOW_W, height=WINDOW_H+20, 
                 no_title_bar=True, no_move=True, no_bring_to_front_on_focus=True, no_resize=True):
     dpg.add_image("_texture", width=WINDOW_W, height=WINDOW_H, tag="_image")
-
 
 
 # Create a window for FLAME sliders
@@ -343,6 +403,13 @@ with dpg.window(label="Avatar Selector", width=550, height=90, pos=(WINDOW_W - 5
     dpg.add_text("", tag="avatar_path")
 
 
+
+# Global handlers
+with dpg.handler_registry():
+    dpg.add_mouse_click_handler(button=dpg.mvMouseButton_Left, callback=on_drag_start)
+    dpg.add_mouse_drag_handler(callback=on_drag, threshold=1)
+    dpg.add_mouse_release_handler(button=dpg.mvMouseButton_Left, callback=on_drag_stop)
+    dpg.add_mouse_wheel_handler(callback=on_mouse_wheel)
 
 
 
