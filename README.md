@@ -96,10 +96,8 @@ We have prepared some head avatar models in the folder ```./saved_avatars/```. P
 
 
 
-
 ## 🟠 Environment
 
-[Return](#)
 
 ### Prerequisites:
 
@@ -113,73 +111,81 @@ We have prepared some head avatar models in the folder ```./saved_avatars/```. P
 
 ⭐ We also suggest you to follow this repo https://github.com/ShenhanQian/GaussianAvatars to setup the environment. Otherwise, you can follow the following steps:
 
-### Step 1: Create a conda environment. 
 
-```
-conda create --name dejavu -y python=3.10
-conda activate dejavu
-```
+<details>
+  <summary>Click to expand</summary>
 
-### Step 2: Install necessary libraries.
+    ### Step 1: Create a conda environment. 
 
-#### Nvidia CUDA compiler (11.7)
+    ```
+    conda create --name dejavu -y python=3.10
+    conda activate dejavu
+    ```
 
-```
-conda install -c "nvidia/label/cuda-11.7.1" cuda-toolkit ninja
+    ### Step 2: Install necessary libraries.
 
-# (Linux only) ----------
-ln -s "$CONDA_PREFIX/lib" "$CONDA_PREFIX/lib64"  # to avoid error "/usr/bin/ld: cannot find -lcudart"
+    #### Nvidia CUDA compiler (11.7)
 
-# Install NVCC (optional, if the NVCC is not installed successfully try this)
-conda install -c conda-forge cudatoolkit=11.7 cudatoolkit-dev=11.7
-```
+    ```
+    conda install -c "nvidia/label/cuda-11.7.1" cuda-toolkit ninja
 
-After install, check NVCC version (should be 11.7):
+    # (Linux only) ----------
+    ln -s "$CONDA_PREFIX/lib" "$CONDA_PREFIX/lib64"  # to avoid error "/usr/bin/ld: cannot find -lcudart"
 
-```
-nvcc --version
-```
+    # Install NVCC (optional, if the NVCC is not installed successfully try this)
+    conda install -c conda-forge cudatoolkit=11.7 cudatoolkit-dev=11.7
+    ```
 
-#### PyTorch (2.0 with CUDA)
+    After install, check NVCC version (should be 11.7):
 
-```
-pip install torch==2.0.1 torchvision --index-url https://download.pytorch.org/whl/cu117
-```
+    ```
+    nvcc --version
+    ```
 
-Now let's test if PyTorch is able to access CUDA device, the result should be ```True```:
+    #### PyTorch (2.0 with CUDA)
 
-```
-python -c "import torch; print(torch.cuda.is_available())"
-```
+    ```
+    pip install torch==2.0.1 torchvision --index-url https://download.pytorch.org/whl/cu117
+    ```
 
-#### Some Python packages
+    Now let's test if PyTorch is able to access CUDA device, the result should be ```True```:
 
-```
-pip install -r requirements.txt
-```
+    ```
+    python -c "import torch; print(torch.cuda.is_available())"
+    ```
 
-**Note that**, by this time we have tested the following versions of ```nvdiffrast``` and ```pytorch3d```:
-- nvdiffrast == **0.3.1**
-- pytorch3d  == **0.7.8**
+    #### Some Python packages
+
+    ```
+    pip install -r requirements.txt
+    ```
+
+    **Note that**, by this time we have tested the following versions of ```nvdiffrast``` and ```pytorch3d```:
+    - nvdiffrast == **0.3.1**
+    - pytorch3d  == **0.7.8**
 
 
 
 
-#### Troubleshoot (Linux)
+    #### Troubleshoot (Linux)
 
-Note that the NVCC needs g++ < 12:
-```
-sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 50
-sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 50
-sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-11 50
-```
+    Note that the NVCC needs g++ < 12:
+    ```
+    sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 50
+    sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 50
+    sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-11 50
+    ```
 
-If there is problem with **nvdiffrast**, check whether it is related to the EGL header file in the error message. If it is, install the EGL Development Libraries (for Ubuntu/Debian-based systems):
-```
-sudo apt-get update
-sudo apt-get install libegl1-mesa-dev
-```
-Then, uninstall nvdiffrast and reinstall it.
+    If there is problem with **nvdiffrast**, check whether it is related to the EGL header file in the error message. If it is, install the EGL Development Libraries (for Ubuntu/Debian-based systems):
+    
+    ```bash
+    sudo apt-get update
+    sudo apt-get install libegl1-mesa-dev
+    ```
+    Then, uninstall nvdiffrast and reinstall it.
+
+</details>
+
 
 
 ## ⭐ Download some necessary model files.
