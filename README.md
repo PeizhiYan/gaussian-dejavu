@@ -113,7 +113,7 @@ We have prepared some head avatar models in the folder ```./saved_avatars/```. P
 
 
 <details>
-  <summary>Click to expand</summary>
+  <summary>Click to expand ⬇️</summary>
 
   ### Step 1: Create a conda environment. 
 
