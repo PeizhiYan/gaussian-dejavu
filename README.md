@@ -8,8 +8,10 @@
 - **Date Updated**: 11-09-2024
 
 
-## 📺 Demo Video (Click to Watch)
+## 📺 Demo Videos (Click to Watch)
 [![Watch the video](https://img.youtube.com/vi/Tm7uPEYzfpo/0.jpg)](https://www.youtube.com/watch?v=Tm7uPEYzfpo)
+[![Watch the video](https://img.youtube.com/vi/j47MnAf9jRo/0.jpg)](https://www.youtube.com/watch?v=j47MnAf9jRo)
+
 
 
 **Notations**:
