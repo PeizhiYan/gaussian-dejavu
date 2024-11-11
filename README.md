@@ -5,7 +5,7 @@
 ## [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 - **Author**: Peizhi Yan
-- **Date Updated**: 11-09-2024
+- **Date Updated**: 11-10-2024
 
 
 ## 📺 Demo Videos (Click to Watch)
@@ -52,8 +52,8 @@ Please consider citing our work if you find this code useful.
 ## 🌱 Todos
 - [x] Avatar viewer demo.
 - [ ] Test on another computer with Ubuntu system.
-- [ ] Convert Mediapipe's blendshapes to FLAME's expression and poses. 
-- [ ] Video head avatar driving demo.
+- [x] Convert Mediapipe's blendshapes to FLAME's expression and poses. 
+- [x] Video head avatar driving demo.
 - [x] Test on Windows system.
 
 
@@ -103,9 +103,11 @@ python run_avatar_driver.py
 ```
 
 > **Pipeline Diagram:**
+> 
+> ![webcam_driving_pipeline](./assets/dejavu_realtime_driving_demo.png)
+>
 > We use Mediapipe's face blendshape scores to drive our avatar.
 > We use pre-calculated mappings (https://github.com/PeizhiYan/mediapipe-blendshapes-to-flame) to derive the blendshape scores to FLAME's expression coefficients, jaw pose and eye pose.
-> ![webcam_driving_pipeline](./assets/dejavu_realtime_driving_demo.png)
 
 
 
