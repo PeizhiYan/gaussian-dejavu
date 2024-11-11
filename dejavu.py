@@ -393,7 +393,7 @@ class GaussianDejavu():
                                 pose:np.array = None, 
                                 eye_pose:np.array = None, 
                                 cam_pose:np.array = None, 
-                                return_all = False):
+                                return_all = False, exp_alpha=0.9):
         """
         Use FLAME coefficients and camera pose to drive the Gaussian Dejavu head avatar
 
@@ -421,8 +421,7 @@ class GaussianDejavu():
         shape = torch.clone(self.mean_shape_coefficients)     # [1,100]
         exp_base = torch.clone(self.mean_exp_coefficients)    # [1,50]
         exp_drive = torch.from_numpy(exp).to(self.device)     # [1,50]
-        exp_alpha = 0.9
-        exp = exp_base + exp_alpha*exp_drive
+        exp = (1-exp_alpha)*exp_base + exp_alpha*exp_drive
         pose = torch.from_numpy(pose).to(self.device)         # [1,6]
         eye_pose = torch.from_numpy(eye_pose).to(self.device) # [1,6]
         cam_pose = torch.from_numpy(cam_pose).to(self.device) # [1,6]

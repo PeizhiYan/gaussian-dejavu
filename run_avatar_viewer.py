@@ -88,9 +88,6 @@ Create Gaussian Dejavu Pipeline
 dejavu = GaussianDejavu(network_weights='./models/dejavu_network.pt', uv_map_size=120, num_expressions=20)
 device = dejavu.device
 
-## load head avatar (for debugging)
-# dejavu.load_head_avatar(save_path='./saved_avatars', avatar_name='peizhi-uv120')
-# dejavu.load_head_avatar(save_path='./saved_avatars', avatar_name='peizhi-uv180')
 
 
 
@@ -110,8 +107,8 @@ DISPLAY_X = (WINDOW_W - RENDER_SIZE) // 2
 """
 Global Variables
 """
-#avatar_loaded = True ; dejavu.load_head_avatar(save_path='./saved_avatars', avatar_name='peizhi-uv120')
-avatar_loaded = False
+avatar_loaded = True ; dejavu.load_head_avatar(save_path='./saved_avatars', avatar_name='peizhi-uv120')
+#avatar_loaded = False
 display_buffer = np.ones((WINDOW_H, WINDOW_W, 3), dtype=np.float32)
 last_time = time()  # Initialize the last time for FPS calculation
 last_fps = 0
@@ -309,7 +306,7 @@ GUI
 """
 # Create main window
 dpg.create_context()
-dpg.create_viewport(title='Gaussian Dejavu Head Avatar Viewer', width=WINDOW_W, height=WINDOW_H)
+dpg.create_viewport(title='Gaussian Dejavu Head Avatar Viewer', width=WINDOW_W+20, height=WINDOW_H+40)
 
 # Create a texture with initial empty data
 with dpg.texture_registry(show=False):
@@ -400,7 +397,7 @@ with dpg.window(label="Avatar Selector", width=550, height=90, pos=(WINDOW_W - 5
     # Button to open file dialog
     dpg.add_button(label="Load Avatar Model", callback=open_folder_dialog)
     # Avatar Path
-    dpg.add_text("", tag="avatar_path")
+    dpg.add_text("Please load the avatar model first!", tag="avatar_path")
 
 
 

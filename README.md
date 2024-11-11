@@ -67,7 +67,7 @@ Please consider citing our work if you find this code useful.
 
 For example:
 
-```
+```python
 import os, sys
 os.environ['CUDA_VISIBLE_DEVICES'] = '0' # Set the visible CUDA, here we use the second GPU
 WORKING_DIR = '/home/peizhi/Documents/gaussian-dejavu/'
