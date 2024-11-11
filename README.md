@@ -93,6 +93,13 @@ Please follow our example to train the personalized head avatar model:
 python run_avatar_viewer.py
 ```
 
+### Avatar Driving Demo
+
+```
+python run_avatar_driver.py
+```
+
+
 We have prepared some head avatar models in the folder ```./saved_avatars/```. Please note that, ```imavatar``` models were trained on the IMAvatar dataset (https://github.com/zhengyuf/IMavatar). 
 
 
