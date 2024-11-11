@@ -103,6 +103,8 @@ python run_avatar_driver.py
 ```
 
 > **Pipeline Diagram:**
+> We use Mediapipe's face blendshape scores to drive our avatar.
+> We use pre-calculated mappings (https://github.com/PeizhiYan/mediapipe-blendshapes-to-flame) to derive the blendshape scores to FLAME's expression coefficients, jaw pose and eye pose.
 > ![webcam_driving_pipeline](./assets/dejavu_realtime_driving_demo.png)
 
 
