@@ -51,10 +51,11 @@ Please consider citing our work if you find this code useful.
 
 ## 🌱 Todos
 - [x] Avatar viewer demo.
-- [ ] Test on another computer with Ubuntu system.
+- [x] Test on another computer with Ubuntu system.
 - [x] Convert Mediapipe's blendshapes to FLAME's expression and poses. 
 - [x] Video head avatar driving demo.
 - [x] Test on Windows system.
+- [ ] Add function: saving the static head as 3DGS file in .ply format.
 
 
 

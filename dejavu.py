@@ -393,7 +393,7 @@ class GaussianDejavu():
                                 pose:np.array = None, 
                                 eye_pose:np.array = None, 
                                 cam_pose:np.array = None, 
-                                return_all = False, exp_alpha=0.9):
+                                return_all = False, return_gaussians = False, exp_alpha=0.9):
         """
         Use FLAME coefficients and camera pose to drive the Gaussian Dejavu head avatar
 
@@ -402,9 +402,12 @@ class GaussianDejavu():
             -     pose: FLAME neck and jaw pose [1, 6]
             - eye_pose: FLAME eyeballs poses [1, 6]
             - cam_pose: camera pose [1, 6]   rotation + translation --> [yaw, pitch, roll, dx, dy, dz]
-
+            - return_all: return all rendered images or not
+            - return_gaussians: return 3D Gaussians or not
+            - exp_alpha: expression blending factor
         output:
-            - 
+            - batch_rendered
+            - batch_gaussians (optional)
         """
         N = 1
 
@@ -452,5 +455,8 @@ class GaussianDejavu():
                                                                batch_gaussians = batch_gaussians,
                                                                return_all = return_all)
         
-        return batch_rendered
+        if return_gaussians:
+            return batch_rendered, batch_gaussians
+        else:
+            return batch_rendered
     

@@ -13,3 +13,4 @@ saved_avatars/*
 !saved_avatars/peizhi-uv120/
 /utils/simple-knn
 /utils/diff-gaussian-rasterization
+gaussian.ply
