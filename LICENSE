@@ -2,6 +2,19 @@ MIT License
 
 Copyright (c) 2024 Peizhi Yan (Matthew)
 
+Note: The license only applies to the part of code with: 
+***Copyright 2024. Peizhi Yan***
+
+This code is provided for **research use only**. All models, datasets, and 
+external code used in this project are the property of their respective owners
+and are subject to their individual copyright and licensing terms. Please 
+strictly adhere to these copyright requirements.
+
+For **commercial use**, you are required to **collect your own dataset** and 
+train the model independently. Additionally, you must obtain the 
+**necessary commercial licenses** for any third-party dependencies included 
+in this project.
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights

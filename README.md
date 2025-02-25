@@ -4,8 +4,9 @@
 
 ## [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+
 - **Author**: Peizhi Yan
-- **Date Updated**: 11-10-2024
+- **Date Updated**: Feb-24-2025
 
 
 ## 📺 Demo Videos (Click to Watch)
@@ -55,7 +56,7 @@ Please consider citing our work if you find this code useful.
 - [x] Convert Mediapipe's blendshapes to FLAME's expression and poses. 
 - [x] Video head avatar driving demo.
 - [x] Test on Windows system.
-- [ ] Add function: saving the static head as 3DGS file in .ply format.
+- [x] Add function: saving the static head as 3DGS file in .ply format.
 
 
 
