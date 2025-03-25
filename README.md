@@ -6,7 +6,7 @@
 
 
 - **Author**: Peizhi Yan
-- **Date Updated**: Feb-24-2025
+- **Date Updated**: Mar-25-2025
 
 
 ## 📺 Demo Videos (Click to Watch)
@@ -90,6 +90,10 @@ When collecting your video, please consider following this guidance to achieve g
 
 Please follow our example to train the personalized head avatar model:
 - [```./examples/Personalize-Avatar.ipynb```](./examples/Personalize-Avatar.ipynb)
+
+We also tested to train the head avatar model on stylized videos (stylized by vToonify), this can achieve cartoon-style head avatar:
+- [```./examples/Personalize-Avatar-cartoon.ipynb```](./examples/Personalize-Avatar-cartoon.ipynb)
+
 
 ### Avatar Viewer Demo
 
