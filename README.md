@@ -6,12 +6,28 @@
 
 
 - **Author**: Peizhi Yan
-- **Date Updated**: Mar-25-2025
+- **Date Updated**: Mar-27-2025 (v1.0)
 
 
 ## 📺 Demo Videos (Click to Watch)
-[![Watch the video](https://img.youtube.com/vi/Tm7uPEYzfpo/0.jpg)](https://www.youtube.com/watch?v=Tm7uPEYzfpo)
-[![Watch the video](https://img.youtube.com/vi/j47MnAf9jRo/0.jpg)](https://www.youtube.com/watch?v=j47MnAf9jRo)
+<div align="center">
+  <table>
+    <tr>
+      <td>
+        <b>Viewer</b>
+        <a href="https://www.youtube.com/watch?v=Tm7uPEYzfpo">
+          <img src="https://img.youtube.com/vi/Tm7uPEYzfpo/0.jpg" alt="Video 1">
+        </a>
+      </td>
+      <td>
+        <b>Webcam Driver</b>
+        <a href="https://www.youtube.com/watch?v=j47MnAf9jRo">
+          <img src="https://img.youtube.com/vi/j47MnAf9jRo/0.jpg" alt="Video 2">
+        </a>
+      </td>
+    </tr>
+  </table>
+</div>
 
 
 
@@ -111,11 +127,17 @@ python run_avatar_driver.py
 ```
 
 > **Pipeline Diagram:**
-> 
-> ![webcam_driving_pipeline](./assets/dejavu_realtime_driving_demo.png)
+
+<div align="center">
+  <img src="./assets/dejavu_realtime_driving_demo.png" alt="webcam_driving_pipeline" width="50%">
+</div>
+
 >
 > We use Mediapipe's face blendshape scores to drive our avatar.
 > We use pre-calculated mappings (https://github.com/PeizhiYan/mediapipe-blendshapes-to-flame) to derive the blendshape scores to FLAME's expression coefficients, jaw pose and eye pose.
+>
+> **Note that**: The driver demo is not optimized for run-time effieiency, therefore the actual fps will be low and cannot reflect the real-time efficiency of 3DGS.
+> 
 
 
 
