@@ -227,7 +227,8 @@ def update_webcam_frame():
 
                 # Get FLAME driving signal from detected Mediapipe blendshape scores
                 exp, pose, eye_pose = mp2flame.convert(blendshape_scores=blendshape_scores[None])
-                exp *= 1.2
+                #exp *= 1.2
+                exp *= 0.4
                 pose[0,3] += 0.03
 
                 # Display the blendshape scores
