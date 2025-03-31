@@ -250,11 +250,13 @@ Because of **copyright concerns**, we cannot re-share any of the following model
 
 - Download our network weights and save to ```./models/dejavu_network.pt```
   - Option 1 (from UBC ECE's server): https://people.ece.ubc.ca/yanpz/DEJAVU/dejavu_network.pt
-  - Option 2 (from Github): https://github.com/PeizhiYan/models_repo/blob/main/gaussian_dejavu/dejavu_network.pt
+  - Option 2 (from Github): https://github.com/PeizhiYan/gaussian-dejavu/releases/download/v1.1/dejavu_network.pt
 
 - (Optional: for demo) Download pre-trained avatars and extract to ```./saved_avatars/```
-  - Option 1 (from UBC ECE's server): https://people.ece.ubc.ca/yanpz/DEJAVU/example_avatars.zip
-  - Option 2 (from Github): https://github.com/PeizhiYan/models_repo/blob/main/gaussian_dejavu/
+  - https://github.com/PeizhiYan/gaussian-dejavu/releases/download/v1.1/imavatar-subject1-uv320-1.1.zip
+  - https://github.com/PeizhiYan/gaussian-dejavu/releases/download/v1.1/imavatar-subject2-uv320-1.1.zip
+  - https://github.com/PeizhiYan/gaussian-dejavu/releases/download/v1.1/peizhi-cartoon-uv320-v1.1.zip
+  - https://github.com/PeizhiYan/gaussian-dejavu/releases/download/v1.1/peizhi-uv180-1.1.zip
 
 
 The structure of ```./models``` should be:
