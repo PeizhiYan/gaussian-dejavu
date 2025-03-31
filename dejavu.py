@@ -450,7 +450,7 @@ class GaussianDejavu():
                 self.num_expressions = num_expressions
                 print(f'Number of expression coefficients changed to {num_expressions}.')
             # create and load the MLP network
-            self.mlp = MLP(input_size=50, hidden_size=50, output_size=self.num_expressions).to(self.device)
+            self.mlp = MLP(input_size=50+3, hidden_size=50, output_size=self.num_expressions).to(self.device)
             self.mlp.load_state_dict(torch.load(os.path.join(save_path, avatar_name, 'mlp_weights.pt')))
             print('Head avatar parameters loaded')
         except Exception as e:
@@ -493,7 +493,7 @@ class GaussianDejavu():
         shape = torch.clone(self.mean_shape_coefficients)     # [1,100]
         exp_base = torch.clone(self.mean_exp_coefficients)    # [1,50]
         exp_drive = torch.from_numpy(exp).to(self.device)     # [1,50]
-        exp = (1-exp_alpha)*exp_base + exp_alpha*exp_drive
+        exp = exp_drive #(1-exp_alpha)*exp_base + exp_alpha*exp_drive
         pose = torch.from_numpy(pose).to(self.device)         # [1,6]
         eye_pose = torch.from_numpy(eye_pose).to(self.device) # [1,6]
         cam_pose = torch.from_numpy(cam_pose).to(self.device) # [1,6]
