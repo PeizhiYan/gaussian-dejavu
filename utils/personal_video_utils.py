@@ -3,7 +3,7 @@
 ## Video Data.                       #
 ## Author: Peizhi Yan                #
 ##   Date: 07/19/2024                #
-## Update: 10/31/2024                #
+## Update: 02/28/2025                #
 ######################################
 
 import numpy as np
@@ -229,7 +229,7 @@ class PersonalDataLoader():
             batch_data['img'][i] = loaded['img']
             batch_data['parsing'][i] = loaded['parsing'].astype(np.uint8)
             batch_data['shape'][i] = loaded['shape'][0]
-            batch_data['exp'][i] = loaded['exp'][0]
+            batch_data['exp'][i] = loaded['exp'][0,:50] # we only use the first 50 expression coefficients
             batch_data['pose'][i] = loaded['pose'][0]
             batch_data['eye_pose'][i] = loaded['eye_pose'][0]
             batch_data['tex'][i] = loaded['tex'][0]

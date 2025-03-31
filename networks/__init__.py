@@ -2,7 +2,7 @@
 ## Neural Network Code.              #
 ## Author: Peizhi Yan                #
 ##   Date: 03/27/2024                #
-## Update: 05/07/2024                #
+## Update: 03/27/2025                #
 ######################################
 
 import torch
@@ -11,6 +11,23 @@ import torch.nn.functional as F
 import torchvision
 import torchvision.transforms as T
 from PixelShuffleUpsample import PixelShuffleUpsample, Blur
+
+class MLP(nn.Module):
+    def __init__(self, input_size, hidden_size, output_size):
+        super(MLP, self).__init__()
+        
+        # Define layers
+        self.fc1 = nn.Linear(input_size, hidden_size)
+        self.fc2 = nn.Linear(hidden_size, hidden_size)
+        self.fc3 = nn.Linear(hidden_size, output_size)
+
+    def forward(self, x):
+        # Forward pass through layers with ReLU activations
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
+        return x
+
 
 class DoubleConv(nn.Module):
     """(convolution => ReLU) * 2
@@ -192,11 +209,6 @@ class EDNet(nn.Module):
         f = self.encode(x)
         y = self.decode(f, p)
         return f, y
-
-
-
-
-
 
 
 

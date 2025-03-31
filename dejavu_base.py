@@ -2,7 +2,7 @@
 ## GaussianDejavu Framework Base     #
 ## Author: Peizhi Yan                #
 ##   Date: 03/27/2024                #
-## Update: 10/31/2024                #
+## Update: 03/27/2025                #
 ######################################
 
 import torch
@@ -58,7 +58,7 @@ def img2tensor(img_tensor):
 
 class Framework():
     """
-    Version: DejaVu-V1 (v3.1)
+    Version: Gaussian DejaVu (v1.0)
     The framework that takes the reconstructed FLAME meshes and the original images,
     to create the 3D head Gaussians and render them to images.
     """
@@ -71,7 +71,7 @@ class Framework():
             compute_cov3D_python: bool = False
             convert_SHs_python: bool = False
 
-        self.version = '3.1'
+        self.version = '1.0'
         self.device = device
         self.uv_rasterizer_device = uv_rasterizer_device # it can be another CUDA device other than self.device
         self.network = EDNet(in_channels=3, out_channels=13, 
