@@ -209,6 +209,7 @@ class PersonalDataLoader():
             'img': np.zeros([real_batch_size, 512, 512, 3], dtype=np.uint8),
             'parsing':      np.zeros([real_batch_size, 512, 512], dtype=np.uint8),
             'vertices': np.zeros([real_batch_size, 5023, 3], dtype=np.float32),
+            'blendshape_scores':    np.zeros([real_batch_size, 52], dtype=np.float32),
             'shape':    np.zeros([real_batch_size, 100], dtype=np.float32),
             'exp':      np.zeros([real_batch_size, 50], dtype=np.float32),
             'pose':     np.zeros([real_batch_size, 6], dtype=np.float32),
@@ -228,6 +229,7 @@ class PersonalDataLoader():
             batch_data['vertices'][i] = loaded['vertices']
             batch_data['img'][i] = loaded['img']
             batch_data['parsing'][i] = loaded['parsing'].astype(np.uint8)
+            batch_data['blendshape_scores'][i] = loaded['blendshape_scores'][0]
             batch_data['shape'][i] = loaded['shape'][0]
             batch_data['exp'][i] = loaded['exp'][0,:50] # we only use the first 50 expression coefficients
             batch_data['pose'][i] = loaded['pose'][0]

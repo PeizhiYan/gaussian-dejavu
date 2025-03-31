@@ -49,13 +49,13 @@ class GaussianDejavu():
     Gaussian DejaVu Head Avatar Framework v1.1
     """
 
-    def __init__(self, network_weights='./models/dejavu_network.pt', uv_map_size=320, num_expressions=10):
+    def __init__(self, network_weights='./models/dejavu_network.pt', uv_map_size=320):
 
         device = "cuda:0"  # Don't use cuda:1, it causes illegal cuda memory access error, need to fix this bug later.\
         self.device = device
         uv_rasterization_device = device # this can be on other CUDA devices, since we do not backpropagate through it
         flame_device = device
-        self.num_expressions = num_expressions
+        self.num_expressions = 10 # we use 10 expression blendmaps
 
         # FLAME Model
         flame_cfg = {
@@ -106,6 +106,7 @@ class GaussianDejavu():
 
         # Create the MLP network for mapping expression coefficients + jaw pose to blending weights
         self.mlp = MLP(input_size=50 + 3, hidden_size=50, output_size=self.num_expressions).to(device)
+        self.mlp.load_state_dict(torch.load(os.path.join('./models/mediapipe_to_flame/mlp.pth')))
 
         print('Gaussian DejaVu Framework Created.')
 
@@ -403,7 +404,7 @@ class GaussianDejavu():
         self.train_global_offsets(personal_dataloader, batch_size=batch_size, total_steps=steps_s1)
 
         ## Stage 1.5: MLP Training
-        self.train_mlp(personal_dataloader, batch_size=batch_size_mlp, total_steps=steps_mlp)
+        #self.train_mlp(personal_dataloader, batch_size=batch_size_mlp, total_steps=steps_mlp)
 
         ## Stage 2: Expression-Aware Rectification
         self.train_blendmaps(personal_dataloader, batch_size=batch_size, total_steps=steps_s2)
@@ -419,7 +420,7 @@ class GaussianDejavu():
             torch.save(self.mean_exp_coefficients.cpu(), os.path.join(save_path, avatar_name, 'mean_exp_coefficients.pt'))
             torch.save(self.global_uv_delta.cpu(), os.path.join(save_path, avatar_name, 'global_uv_delta.pt'))
             torch.save(self.uv_delta_blendmaps.cpu(), os.path.join(save_path, avatar_name, 'uv_delta_blendmaps.pt'))
-            torch.save(self.mlp.state_dict(), os.path.join(save_path, avatar_name, 'mlp_weights.pt'))
+            #torch.save(self.mlp.state_dict(), os.path.join(save_path, avatar_name, 'mlp_weights.pt'))
             print(f'Head avatar parameters saved to {os.path.join(save_path, avatar_name)}')
         except Exception as e:
             print('dejavu.py function save_head_avatar() : ', e)
@@ -450,8 +451,8 @@ class GaussianDejavu():
                 self.num_expressions = num_expressions
                 print(f'Number of expression coefficients changed to {num_expressions}.')
             # create and load the MLP network
-            self.mlp = MLP(input_size=50+3, hidden_size=50, output_size=self.num_expressions).to(self.device)
-            self.mlp.load_state_dict(torch.load(os.path.join(save_path, avatar_name, 'mlp_weights.pt')))
+            #self.mlp = MLP(input_size=50+3, hidden_size=50, output_size=self.num_expressions).to(self.device)
+            #self.mlp.load_state_dict(torch.load(os.path.join(save_path, avatar_name, 'mlp_weights.pt')))
             print('Head avatar parameters loaded')
         except Exception as e:
             print('dejavu.py function load_head_avatar() : ', e)

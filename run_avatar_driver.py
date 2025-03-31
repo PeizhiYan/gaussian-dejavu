@@ -154,7 +154,7 @@ except:
 """
 Create Gaussian Dejavu Pipeline
 """
-dejavu = GaussianDejavu(network_weights='./models/dejavu_network.pt', uv_map_size=120, num_expressions=20)
+dejavu = GaussianDejavu(network_weights='./models/dejavu_network.pt', uv_map_size=120)
 device = dejavu.device
 
 
@@ -181,7 +181,7 @@ WEBCAM_W = 256
 """
 Global Variables
 """
-avatar_loaded = True ; dejavu.load_head_avatar(save_path='./saved_avatars', avatar_name='peizhi-uv120')
+avatar_loaded = True ; dejavu.load_head_avatar(save_path='./saved_avatars', avatar_name='peizhi-uv320-1.1')
 #avatar_loaded = False
 display_buffer = np.ones((WINDOW_H, WINDOW_W, 3), dtype=np.float32)
 webcam_display_buffer = np.zeros((WEBCAM_H, WEBCAM_W, 3), dtype=np.float32)
