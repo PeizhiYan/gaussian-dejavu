@@ -506,7 +506,7 @@ class GaussianDejavu():
 
         # compute blending weights
         # blending_coefficients = F.softmax(exp[:,:self.num_expressions], dim=1)
-        exp_pose = torch.cat((exp, pose), dim=1)  # Concatenate exp and pose along the last dimension
+        exp_pose = torch.cat((exp, pose[:,3:]), dim=1)  # Concatenate exp and pose along the last dimension
         logits = self.mlp(exp_pose)
         blending_weights = F.softmax(logits, dim=1)
 
