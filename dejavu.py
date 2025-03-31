@@ -2,7 +2,7 @@
 ## GaussianDejavu Framework          #
 ## Author: Peizhi Yan                #
 ##   Date: 11/04/2024                #
-## Update: 03/28/2025                #
+## Update: 03/31/2025                #
 ######################################
 
 import matplotlib.pyplot as plt
@@ -291,49 +291,6 @@ class GaussianDejavu():
         self.global_uv_delta = uv_delta
 
 
-    def train_mlp(self, personal_dataloader, batch_size=64, total_steps=250):
-        ## Stage 1.5 MLP Training
-        # added in v1.1
-
-        learning_rate = 0.01
-
-        # map blending weights back to expression coefficients (for training only)
-        reverse_mlp = MLP(input_size=self.num_expressions, hidden_size=50, output_size=50 + 3).to(self.device)
-
-        mlp_params = list(self.mlp.parameters())
-        reverse_mlp_params = list(reverse_mlp.parameters())
-        optimizer = torch.optim.Adam(mlp_params + reverse_mlp_params, lr=learning_rate)
-        scheduler = StepLR(optimizer, step_size=total_steps//10, gamma=0.9)
-
-        # optimize
-        pbar = tqdm(range(total_steps))
-        for step in pbar:
-            with torch.no_grad():
-                # sample training data
-                batch_data = personal_dataloader.next_random_batch(vid=None, batch_size=batch_size)
-                exp = batch_data['exp'][:,:50] # FLAME expression coefficients [N, n_expressions]
-                pose = batch_data['pose'][:,3:6]  # FLAME jaw pose [N, 3]
-                exp_pose = torch.cat((exp, pose), dim=1)  # Concatenate exp and pose along the last dimension
-
-            # predict the blending weights
-            logits = self.mlp(exp_pose)
-            blending_weights = F.softmax(logits, dim=1)
-
-            # reverse mapping blending weights to expression coefficients
-            exp_pose_pred = reverse_mlp(blending_weights)    # [N, 53]
-            # loss = torch.mean((exp_pred - batch_data['exp'][:,:50])**2) # [N, 50]
-            loss = torch.mean((exp_pose_pred - exp_pose)**2) # [N, 53]
-
-            # display status
-            current_lr = scheduler.get_last_lr()[0]
-            pbar.set_description(f"Training MLP... Loss: {loss.item():.4f} LR: {current_lr:.4f}")
-
-            loss.backward()
-            optimizer.step()
-            optimizer.zero_grad() # clean gradient again
-            scheduler.step()
-
-    
     def train_blendmaps(self, personal_dataloader, batch_size=16, total_steps=500):
         ## Stage 2
 
@@ -395,16 +352,12 @@ class GaussianDejavu():
         self.uv_delta_blendmaps = uv_delta_blendmaps
 
 
-    def personal_video_training(self, personal_dataloader, batch_size=16, batch_size_mlp=64, 
-                                      steps_s1=100, steps_mlp=500, steps_s2=500):
+    def personal_video_training(self, personal_dataloader, batch_size=16, steps_s1=100, steps_s2=500):
         ## Initialization
         self._compute_average_uv_offsets_(personal_dataloader, batch_size=50)
 
         ## Stage 1: Global Rectification
         self.train_global_offsets(personal_dataloader, batch_size=batch_size, total_steps=steps_s1)
-
-        ## Stage 1.5: MLP Training
-        #self.train_mlp(personal_dataloader, batch_size=batch_size_mlp, total_steps=steps_mlp)
 
         ## Stage 2: Expression-Aware Rectification
         self.train_blendmaps(personal_dataloader, batch_size=batch_size, total_steps=steps_s2)
@@ -420,7 +373,6 @@ class GaussianDejavu():
             torch.save(self.mean_exp_coefficients.cpu(), os.path.join(save_path, avatar_name, 'mean_exp_coefficients.pt'))
             torch.save(self.global_uv_delta.cpu(), os.path.join(save_path, avatar_name, 'global_uv_delta.pt'))
             torch.save(self.uv_delta_blendmaps.cpu(), os.path.join(save_path, avatar_name, 'uv_delta_blendmaps.pt'))
-            #torch.save(self.mlp.state_dict(), os.path.join(save_path, avatar_name, 'mlp_weights.pt'))
             print(f'Head avatar parameters saved to {os.path.join(save_path, avatar_name)}')
         except Exception as e:
             print('dejavu.py function save_head_avatar() : ', e)
@@ -450,9 +402,6 @@ class GaussianDejavu():
             if num_expressions != self.num_expressions:
                 self.num_expressions = num_expressions
                 print(f'Number of expression coefficients changed to {num_expressions}.')
-            # create and load the MLP network
-            #self.mlp = MLP(input_size=50+3, hidden_size=50, output_size=self.num_expressions).to(self.device)
-            #self.mlp.load_state_dict(torch.load(os.path.join(save_path, avatar_name, 'mlp_weights.pt')))
             print('Head avatar parameters loaded')
         except Exception as e:
             print('dejavu.py function load_head_avatar() : ', e)
@@ -506,7 +455,7 @@ class GaussianDejavu():
         uv_maps = self.framework.create_init_uv_maps(vertices.cpu().numpy())   # [N, S, S, 13]
 
         # compute blending weights
-        # blending_coefficients = F.softmax(exp[:,:self.num_expressions], dim=1)
+        # blending_coefficients = F.softmax(exp[:,:self.num_expressions], dim=1) # v1.0
         exp_pose = torch.cat((exp, pose[:,3:]), dim=1)  # Concatenate exp and pose along the last dimension
         logits = self.mlp(exp_pose)
         blending_weights = F.softmax(logits, dim=1)

@@ -6,7 +6,10 @@
 
 
 - **Author**: Peizhi Yan
-- **Date Updated**: Mar-27-2025 (v1.0)
+- **Date Updated**: Mar-31-2025 (v1.1)
+- **Update History**
+  - **Mar-31-2025**: v1.1 demo. This version includes a minor update from our WACV 2025 paper. We've added a pre-trained MLP network that maps FLAME expression coefficients to a lower-dimensional (10D in this demo) set of blending weights.
+  - **Mar-27-2025**: v1.0 demo. This version matches the method described in our WACV 2025 paper. Please use this version for benchmarking purpose.
 
 
 ## 📺 Demo Videos (Click to Watch)
@@ -272,6 +275,7 @@ The structure of ```./models``` should be:
   │   │   ├── bs2eye.npy
   │   │   └── bs2pose.npy
   │   ├── MP2FLAME.py
+  │   ├── mlp.pth
   │   └── README.md
   ├── uv_face_weights.npy
   ├── uv_init_opacity_weights.npy

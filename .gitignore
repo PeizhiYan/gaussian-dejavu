@@ -10,7 +10,8 @@ snapshot_fw.dump
 examples/FLAME_test_code.ipynb
 saved_avatars/*
 !saved_avatars/placeholder.txt
-!saved_avatars/peizhi-uv120/
+/saved_avatars/peizhi-uv120
+!saved_avatars/peizhi-uv180-1.1/
 /utils/simple-knn
 /utils/diff-gaussian-rasterization
 saved_gaussians.ply

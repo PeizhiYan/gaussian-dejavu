@@ -107,7 +107,7 @@ DISPLAY_X = (WINDOW_W - RENDER_SIZE) // 2
 """
 Global Variables
 """
-avatar_loaded = True ; dejavu.load_head_avatar(save_path='./saved_avatars', avatar_name='peizhi-uv120')
+avatar_loaded = True ; dejavu.load_head_avatar(save_path='./saved_avatars', avatar_name='peizhi-uv180-1.1')
 #avatar_loaded = False
 display_buffer = np.ones((WINDOW_H, WINDOW_W, 3), dtype=np.float32)
 last_time = time()  # Initialize the last time for FPS calculation
