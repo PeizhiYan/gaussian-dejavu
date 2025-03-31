@@ -493,7 +493,7 @@ class GaussianDejavu():
         shape = torch.clone(self.mean_shape_coefficients)     # [1,100]
         exp_base = torch.clone(self.mean_exp_coefficients)    # [1,50]
         exp_drive = torch.from_numpy(exp).to(self.device)     # [1,50]
-        exp = exp_drive #(1-exp_alpha)*exp_base + exp_alpha*exp_drive
+        exp = exp_drive # (1-exp_alpha)*exp_base + exp_alpha*exp_drive
         pose = torch.from_numpy(pose).to(self.device)         # [1,6]
         eye_pose = torch.from_numpy(eye_pose).to(self.device) # [1,6]
         cam_pose = torch.from_numpy(cam_pose).to(self.device) # [1,6]
