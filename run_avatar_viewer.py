@@ -85,7 +85,7 @@ def blur_head_boundary(rendered_img, blur_kernel_size=25, erode_kernel_size=20, 
 """
 Create Gaussian Dejavu Pipeline
 """
-dejavu = GaussianDejavu(network_weights='./models/dejavu_network.pt', uv_map_size=120, num_expressions=20)
+dejavu = GaussianDejavu(network_weights='./models/dejavu_network.pt', uv_map_size=120)
 device = dejavu.device
 
 
