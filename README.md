@@ -7,9 +7,9 @@
 
 - **Author**: Peizhi Yan
 - **Date Updated**: Mar-31-2025 (v1.1)
-- **Update History**
-  - **Mar-31-2025**: v1.1 demo. This version includes a minor update from our WACV 2025 paper. We've added a pre-trained MLP network that maps FLAME expression coefficients to a lower-dimensional (10D in this demo) set of blending weights.
-  - **Mar-27-2025**: v1.0 demo. This version matches the method described in our WACV 2025 paper. Please use this version for benchmarking purpose.
+## Update History
+- ```Mar-31-2025```: v1.1 demo. This version includes a minor update from our WACV 2025 paper. We've added a pre-trained MLP network that maps FLAME expression coefficients to a lower-dimensional (10D in this demo) set of blending weights.
+- ```Mar-27-2025```: v1.0 demo. This version matches the method described in our WACV 2025 paper. Please use this version for benchmarking purpose.
 
 
 ## 📺 Demo Videos (Click to Watch)
@@ -43,11 +43,6 @@
 ```
 git clone --depth 1 https://github.com/PeizhiYan/gaussian-dejavu
 ```
-
-
-## ✨ Milestones
-- ```11-06-2024```: Code and avatar viewer demo released.
-
 
 
 
