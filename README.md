@@ -96,7 +96,9 @@ os.chdir(WORKING_DIR) # change the working directory to the project's absolute p
 
 ### Prepare Training Data
 
-Please follow https://github.com/PeizhiYan/flame-head-tracker and our example [```./examples/Personal-Video-Precessing.ipynb```](./examples/Personal-Video-Processing.ipynb) to pre-process your video.
+Please follow https://github.com/PeizhiYan/flame-head-tracker/tree/v3.2 and our example [```./examples/Personal-Video-Precessing.ipynb```](./examples/Personal-Video-Processing.ipynb) to pre-process your video.
+
+**Note that, ```Dejavu v1.1``` code is compatible with ```flame-head-tracker v3.2```, not higher versions.**
 
 When collecting your video, please consider following this guidance to achieve good reconstruction results [```./assets/personal_video_collection_procedure.pdf```](./assets/personal_video_collection_procedure.pdf)
 
