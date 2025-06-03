@@ -107,7 +107,7 @@ When collecting your video, please consider following this guidance to achieve g
 Please follow our example to train the personalized head avatar model:
 - [```./examples/Personalize-Avatar.ipynb```](./examples/Personalize-Avatar.ipynb)
 
-[**Experimental**!] We also tested to train the head avatar model on stylized videos (stylized by vToonify):
+[**Experimental**!] We also tested to train the head avatar model on stylized videos (stylized by vToonify, see [Details](./assets/README-cartoon.md)):
 - [```./examples/Personalize-Avatar-cartoon.ipynb```](./examples/Personalize-Avatar-cartoon.ipynb)
 
 
@@ -138,7 +138,6 @@ python run_avatar_driver.py
 >
 > **Note that**: The driver demo is not optimized for run-time effieiency, therefore the actual fps will be low and cannot reflect the real-time efficiency of 3DGS.
 > 
-
 
 
 
