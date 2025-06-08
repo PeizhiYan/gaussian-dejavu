@@ -109,6 +109,9 @@ Please follow our example to train the personalized head avatar model:
 
 [**Experimental**!] We also tested to train the head avatar model on stylized videos (stylized by vToonify, see [Details](./assets/README-cartoon.md)):
 - [```./examples/Personalize-Avatar-cartoon.ipynb```](./examples/Personalize-Avatar-cartoon.ipynb)
+<div align="left"> 
+  <b><img src="./assets/cartoon-demo.gif" alt="drawing" width="400"/></b>
+</div>
 
 
 ### Avatar Viewer Demo
