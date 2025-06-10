@@ -46,7 +46,7 @@ def load_model_weights(model, weights_path):
 
 class GaussianDejavu():
     """
-    Gaussian DejaVu Head Avatar Framework v1.1
+    Gaussian DejaVu Head Avatar Framework v1.2
     """
 
     def __init__(self, network_weights='./models/dejavu_network.pt', uv_map_size=320):

@@ -6,8 +6,9 @@
 
 
 - **Author**: Peizhi Yan
-- **Date Updated**: Mar-31-2025 (v1.1)
+- **Current Version**: v1.2
 ## Update History
+- ```Jun-09-2025```: In v1.2, I slightly modified the dataloader to support the tracking results from ```flame-head-tracker v3.3```
 - ```Mar-31-2025```: v1.1 demo. This version includes a minor update from our WACV 2025 paper. We've added a pre-trained MLP network that maps FLAME expression coefficients to a lower-dimensional (10D in this demo) set of blending weights.
 - ```Mar-27-2025```: v1.0 demo. This version matches the method described in our WACV 2025 paper. Please use this version for benchmarking purpose.
 
@@ -66,16 +67,6 @@ Please consider citing our work if you find this code useful.
 
 
 
-## 🌱 Todos
-- [x] Avatar viewer demo.
-- [x] Test on another computer with Ubuntu system.
-- [x] Convert Mediapipe's blendshapes to FLAME's expression and poses. 
-- [x] Video head avatar driving demo.
-- [x] Test on Windows system.
-- [x] Add function: saving the static head as 3DGS file in .ply format.
-
-
-
 
 
 
@@ -96,9 +87,9 @@ os.chdir(WORKING_DIR) # change the working directory to the project's absolute p
 
 ### Prepare Training Data
 
-Please follow https://github.com/PeizhiYan/flame-head-tracker/tree/v3.2 and our example [```./examples/Personal-Video-Precessing.ipynb```](./examples/Personal-Video-Processing.ipynb) to pre-process your video.
+Please follow https://github.com/PeizhiYan/flame-head-tracker/tree/v3.3 and our example [```./examples/Personal-Video-Precessing.ipynb```](./examples/Personal-Video-Processing.ipynb) to pre-process your video.
 
-**Note that, ```Dejavu v1.1``` code is compatible with ```flame-head-tracker v3.2```, not higher versions.**
+**Note that, ```Dejavu v1.2``` code is compatible with ```flame-head-tracker v3.3```, not lower versions.**
 
 When collecting your video, please consider following this guidance to achieve good reconstruction results [```./assets/personal_video_collection_procedure.pdf```](./assets/personal_video_collection_procedure.pdf)
 
