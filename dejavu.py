@@ -2,7 +2,7 @@
 ## GaussianDejavu Framework          #
 ## Author: Peizhi Yan                #
 ##   Date: 11/04/2024                #
-## Update: 03/31/2025                #
+## Update: 06/18/2025                #
 ######################################
 
 import matplotlib.pyplot as plt
@@ -46,7 +46,7 @@ def load_model_weights(model, weights_path):
 
 class GaussianDejavu():
     """
-    Gaussian DejaVu Head Avatar Framework v1.2
+    Gaussian DejaVu Head Avatar Framework v1.3
     """
 
     def __init__(self, network_weights='./models/dejavu_network.pt', uv_map_size=320):
@@ -83,6 +83,7 @@ class GaussianDejavu():
         # Create FLAME model
         flame_cfg = dict2obj(flame_cfg)
         self.flame = FLAME(flame_cfg).to(flame_device)
+        # self.flame.v_template[3931:5023, 2] -= 0.005 # move the eyeballs backward a little bit
 
         # Create DejaVu base framework
         self.framework = Framework(device=device, uv_rasterizer_device=uv_rasterization_device, uv_size=uv_map_size)
@@ -152,8 +153,15 @@ class GaussianDejavu():
             for video in videos:
                 # randomly sample a batch
                 batch_data = personal_dataloader.next_random_batch(vid=video, batch_size=batch_size)
+                # flame reconstruction from coefficients
+                vertices, _, _ = self.flame(shape_params=batch_data['shape'][:,...], 
+                                            expression_params=batch_data['exp'][:,...], 
+                                            head_pose_params=batch_data['head_pose'][:,...],
+                                            jaw_pose_params=batch_data['jaw_pose'][:,...], 
+                                            eye_pose_params=batch_data['eye_pose'][:,...])
+                vertices = vertices.cpu().numpy()  # [N, V, 3]
                 # init uv maps
-                uv_maps = self.framework.create_init_uv_maps(batch_data['vertices']) # [N, S, S, 13]
+                uv_maps = self.framework.create_init_uv_maps(vertices) # [N, S, S, 13]
                 # uv offsets
                 _, uv_offsets = self.framework.get_uv_offsets(batch_images=batch_data['img_masked'], uv_maps=uv_maps)  # [N, S, S, 13]
                 # compute mena uv offsets
@@ -162,8 +170,8 @@ class GaussianDejavu():
                 else: mean_uv_offsets += temp
                 if mean_shape_coefficients is None: mean_shape_coefficients = batch_data['shape'].mean(dim=0) # [100]
                 else: mean_shape_coefficients += batch_data['shape'].mean(dim=0)
-                if mean_shape is None: mean_shape = batch_data['vertices'].mean(axis=0) # [V, 3]
-                else: mean_shape += batch_data['vertices'].mean(axis=0)
+                if mean_shape is None: mean_shape = vertices.mean(axis=0) # [V, 3]
+                else: mean_shape += vertices.mean(axis=0)
                 if mean_exp_coefficients is None: mean_exp_coefficients = batch_data['exp'].mean(dim=0) # [50]
                 else: mean_exp_coefficients += batch_data['exp'].mean(dim=0)
             # averge over all videos
@@ -187,7 +195,8 @@ class GaussianDejavu():
             for i in range(N):
                 vertices, _, _ = self.flame(shape_params=shape, 
                                             expression_params=batch_data['exp'][i:i+1,...], 
-                                            pose_params=batch_data['pose'][i:i+1,...], 
+                                            head_pose_params=batch_data['head_pose'][i:i+1,...],
+                                            jaw_pose_params=batch_data['jaw_pose'][i:i+1,...], 
                                             eye_pose_params=batch_data['eye_pose'][i:i+1,...])
                 batch_vertices.append(vertices.cpu().numpy()[0])
             batch_vertices = np.array(batch_vertices)
@@ -224,11 +233,11 @@ class GaussianDejavu():
         batch_uv_delta = (blending_coefficients * uv_delta_blendmaps).sum(dim=-1)  # [N, S, S, 13]
         return self._render_with_global_offsets_(batch_data, batch_uv_delta), batch_uv_delta
         """
-        exp = batch_data['exp'][:,:50]    # FLAME expression coefficients [N, n_expressions]
-        pose = batch_data['pose'][:,3:6]  # FLAME jaw pose [N, 3]
+        exp = batch_data['exp'][:,:50]      # FLAME expression coefficients [N, n_expressions]
+        jaw_pose = batch_data['jaw_pose'][:,:]  # FLAME jaw pose [N, 3]
         N = len(exp)
         with torch.no_grad():
-            exp_pose = torch.cat((exp, pose), dim=1)  # Concatenate exp and pose along the last dimension
+            exp_pose = torch.cat((exp, jaw_pose), dim=1)  # Concatenate exp and pose along the last dimension
             logits = self.mlp(exp_pose)
             blending_weights = F.softmax(logits, dim=1)
             _blending_weights_ = blending_weights.view(N, 1, 1, 1, blending_weights.shape[1])
@@ -409,7 +418,8 @@ class GaussianDejavu():
 
     @torch.no_grad()
     def drive_head_avatar(self, exp:np.array = None, 
-                                pose:np.array = None, 
+                                head_pose:np.array = None,
+                                jaw_pose:np.array = None, 
                                 eye_pose:np.array = None, 
                                 cam_pose:np.array = None, 
                                 return_all = False, return_gaussians = False, exp_alpha=0.9):
@@ -418,7 +428,8 @@ class GaussianDejavu():
 
         inputs:
             -      exp: FLAME expression coefficients [1, 50]
-            -     pose: FLAME neck and jaw pose [1, 6]
+            - head_pose: FLAME head pose [1, 3]
+            - jaw_pose: FLAME jaw pose [1, 3]
             - eye_pose: FLAME eyeballs poses [1, 6]
             - cam_pose: camera pose [1, 6]   rotation + translation --> [yaw, pitch, roll, dx, dy, dz]
             - return_all: return all rendered images or not
@@ -432,31 +443,35 @@ class GaussianDejavu():
 
         if exp is None:
             exp = np.zeros([1,50], dtype=np.float32)
-        if pose is None:
-            pose = np.zeros([1,6], dtype=np.float32)
+        if head_pose is None:
+            head_pose = np.zeros([1,3], dtype=np.float32)
+        if jaw_pose is None:
+            jaw_pose = np.zeros([1,3], dtype=np.float32)
         if eye_pose is None:
             eye_pose = np.zeros([1,6], dtype=np.float32)
         if cam_pose is None:
             cam_pose = np.array([[0,0,0,0,0,1.0]], dtype=np.float32)
 
         # convert to Pytorch tensors
-        shape = torch.clone(self.mean_shape_coefficients)     # [1,100]
-        exp_base = torch.clone(self.mean_exp_coefficients)    # [1,50]
-        exp_drive = torch.from_numpy(exp).to(self.device)     # [1,50]
+        shape = torch.clone(self.mean_shape_coefficients)         # [1,100]
+        exp_base = torch.clone(self.mean_exp_coefficients)        # [1,50]
+        exp_drive = torch.from_numpy(exp).to(self.device)         # [1,50]
         exp = exp_drive # (1-exp_alpha)*exp_base + exp_alpha*exp_drive
-        pose = torch.from_numpy(pose).to(self.device)         # [1,6]
-        eye_pose = torch.from_numpy(eye_pose).to(self.device) # [1,6]
-        cam_pose = torch.from_numpy(cam_pose).to(self.device) # [1,6]
+        head_pose = torch.from_numpy(head_pose).to(self.device)   # [1,3]
+        jaw_pose = torch.from_numpy(jaw_pose).to(self.device)     # [1,3]
+        eye_pose = torch.from_numpy(eye_pose).to(self.device)     # [1,6]
+        cam_pose = torch.from_numpy(cam_pose).to(self.device)     # [1,6]
 
         # FLAME neutral shape reconstruction
-        vertices, _, _ = self.flame(shape_params=shape, expression_params=exp, pose_params=pose, eye_pose_params=eye_pose)
+        vertices, _, _ = self.flame(shape_params=shape, expression_params=exp, 
+                                    head_pose_params=head_pose, jaw_pose_params=jaw_pose, eye_pose_params=eye_pose)
 
         # FLAME shape rasterization to UV map
         uv_maps = self.framework.create_init_uv_maps(vertices.cpu().numpy())   # [N, S, S, 13]
 
         # compute blending weights
         # blending_coefficients = F.softmax(exp[:,:self.num_expressions], dim=1) # v1.0
-        exp_pose = torch.cat((exp, pose[:,3:]), dim=1)  # Concatenate exp and pose along the last dimension
+        exp_pose = torch.cat((exp, jaw_pose[:,:]), dim=1)  # Concatenate exp and jaw pose along the last dimension
         logits = self.mlp(exp_pose)
         blending_weights = F.softmax(logits, dim=1)
 

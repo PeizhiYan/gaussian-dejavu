@@ -317,7 +317,9 @@ def update_image():
     camera_pose = np.array([[yaw,pitch,0,dx,dy,radius-dz]], dtype=np.float32)
 
     # Drive and render
-    rendered = dejavu.drive_head_avatar(exp=exp[:,:50], pose=pose, eye_pose=eye_pose, cam_pose=camera_pose, return_all=False, exp_alpha=0.6)
+    rendered = dejavu.drive_head_avatar(exp=exp[:,:50], 
+                                        head_pose=pose[:,:3], jaw_pose=pose[:,3:], eye_pose=eye_pose, 
+                                        cam_pose=camera_pose, return_all=False, exp_alpha=0.6)
     rendered = rendered[0].cpu().permute(1,2,0).numpy()
 
     # Blur the boundary

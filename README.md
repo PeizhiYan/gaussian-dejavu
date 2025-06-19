@@ -6,11 +6,14 @@
 
 
 - **Author**: Peizhi Yan
-- **Current Version**: v1.2
-## Update History
-- ```Jun-09-2025```: In v1.2, I slightly modified the dataloader to support the tracking results from ```flame-head-tracker v3.3```
-- ```Mar-31-2025```: v1.1 demo. This version includes a minor update from our WACV 2025 paper. We've added a pre-trained MLP network that maps FLAME expression coefficients to a lower-dimensional (10D in this demo) set of blending weights.
-- ```Mar-27-2025```: v1.0 demo. This version matches the method described in our WACV 2025 paper. Please use this version for benchmarking purpose.
+- **Current Version**: v1.3
+
+> [!NOTE]
+> ### Versions:
+> - _Jun-18-2025_: In v1.3, support tracking results from ```flame-head-tracker v3.4```
+> - _Jun-09-2025_: In v1.2, support tracking results from ```flame-head-tracker v3.3```
+> - _Mar-31-2025_: v1.1 demo. We've added a pre-trained MLP network that maps FLAME expression coefficients to a lower-dimensional (10D in this demo) set of blending weights.
+> - _Mar-27-2025_: v1.0 demo. This version matches the method described in our WACV 2025 paper. Please use this version for benchmarking purpose.
 
 
 ## 📺 Demo Videos (Click to Watch)
@@ -87,9 +90,12 @@ os.chdir(WORKING_DIR) # change the working directory to the project's absolute p
 
 ### Prepare Training Data
 
-Please follow https://github.com/PeizhiYan/flame-head-tracker/tree/v3.3 and our example [```./examples/Personal-Video-Precessing.ipynb```](./examples/Personal-Video-Processing.ipynb) to pre-process your video.
+Please follow https://github.com/PeizhiYan/flame-head-tracker/tree/v3.4 and our example [```./examples/Personal-Video-Precessing.ipynb```](./examples/Personal-Video-Processing.ipynb) to pre-process your video.
 
-**Note that, ```Dejavu v1.2``` code is compatible with ```flame-head-tracker v3.3```, not lower versions.**
+> [!WARNING]
+> - ```Dejavu v1.3``` is compatible with ```flame-head-tracker v3.4```, not lower versions.
+> - ```Dejavu v1.2``` is compatible with ```flame-head-tracker v3.3```, not lower versions.
+> - ```Dejavu v1.1``` and ```Dejavu v1.0``` are compatible with ```flame-head-tracker v3.2```
 
 When collecting your video, please consider following this guidance to achieve good reconstruction results [```./assets/personal_video_collection_procedure.pdf```](./assets/personal_video_collection_procedure.pdf)
 
@@ -120,9 +126,9 @@ We have prepared some head avatar models in the folder ```./saved_avatars/```. P
 python run_avatar_driver.py
 ```
 
-> **Pipeline Diagram:**
+**Pipeline Diagram:**
 
-<div align="center">
+<div align="left">
   <img src="./assets/dejavu_realtime_driving_demo.png" alt="webcam_driving_pipeline" width="50%">
 </div>
 

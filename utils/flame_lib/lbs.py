@@ -348,9 +348,17 @@ def batch_rigid_transform(rot_mats, joints, parents, dtype=torch.float32):
     rel_joints = joints.clone()
     rel_joints[:, 1:] -= joints[:, parents[1:]]
 
+    # transforms_mat = transform_mat(
+    #     rot_mats.view(-1, 3, 3),
+    #     rel_joints.view(-1, 3, 1)).view(-1, joints.shape[1], 4, 4)
+
+    """
+    bug fixed by Peizhi
+    .reshape() handles both contiguous and non-contiguous tensors safely.
+    """
     transforms_mat = transform_mat(
-        rot_mats.view(-1, 3, 3),
-        rel_joints.view(-1, 3, 1)).view(-1, joints.shape[1], 4, 4)
+        rot_mats.reshape(-1, 3, 3),
+        rel_joints.reshape(-1, 3, 1)).reshape(-1, joints.shape[1], 4, 4)
 
     transform_chain = [transforms_mat[:, 0]]
     for i in range(1, parents.shape[0]):

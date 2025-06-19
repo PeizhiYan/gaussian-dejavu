@@ -183,7 +183,7 @@ class PersonalDataLoader():
                 if fid.startswith('.'):
                     continue
                 else:
-                    if fid.endswith('.npy') and not fid.startswith('.'):
+                    if fid.endswith('.npz') and not fid.startswith('.'):
                         self.meta_data[vid][fid.split('.')[0]] = os.path.join(path_b, fid)
 
         self.n_frames = 0
@@ -208,11 +208,12 @@ class PersonalDataLoader():
             'fid': [],  # frame ids
             'img': np.zeros([real_batch_size, 512, 512, 3], dtype=np.uint8),
             'parsing':      np.zeros([real_batch_size, 512, 512], dtype=np.uint8),
-            'vertices': np.zeros([real_batch_size, 5023, 3], dtype=np.float32),
+            #'vertices': np.zeros([real_batch_size, 5023, 3], dtype=np.float32),
             'blendshape_scores':    np.zeros([real_batch_size, 52], dtype=np.float32),
             'shape':    np.zeros([real_batch_size, 100], dtype=np.float32),
             'exp':      np.zeros([real_batch_size, 50], dtype=np.float32),
-            'pose':     np.zeros([real_batch_size, 6], dtype=np.float32),
+            'head_pose':np.zeros([real_batch_size, 3], dtype=np.float32),
+            'jaw_pose': np.zeros([real_batch_size, 3], dtype=np.float32),
             'eye_pose': np.zeros([real_batch_size, 6], dtype=np.float32),
             'tex':      np.zeros([real_batch_size, 50], dtype=np.float32),
             'light':    np.zeros([real_batch_size, 9, 3], dtype=np.float32),
@@ -226,18 +227,18 @@ class PersonalDataLoader():
             loaded = np.load(file_path, allow_pickle=True)
             # store data
             batch_data['fid'].append(fid)
-            batch_data['vertices'][i] = loaded['vertices']
+            #batch_data['vertices'][i] = loaded['vertices']
             batch_data['img'][i] = loaded['img']
             batch_data['parsing'][i] = loaded['parsing'].astype(np.uint8)
             batch_data['blendshape_scores'][i] = loaded['blendshape_scores'][0]
             batch_data['shape'][i] = loaded['shape'][0,:100]
             batch_data['exp'][i] = loaded['exp'][0,:50] # we only use the first 50 expression coefficients
-            batch_data['pose'][i] = loaded['pose'][0]
+            batch_data['head_pose'][i] = loaded['head_pose'][0]
+            batch_data['jaw_pose'][i] = loaded['jaw_pose'][0]
             batch_data['eye_pose'][i] = loaded['eye_pose'][0]
             batch_data['tex'][i] = loaded['tex'][0]
             batch_data['light'][i] = loaded['light'][0]
             batch_data['cam'][i] = loaded['cam'][0]
-
 
         # mask out background
         batch_data['img_masked'], batch_data['masks'] = mask_out_background(

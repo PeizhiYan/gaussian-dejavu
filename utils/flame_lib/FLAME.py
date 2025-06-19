@@ -2,7 +2,10 @@
 Author: Soubhik Sanyal
 Copyright (c) 2019, Soubhik Sanyal
 All rights reserved.
+
+Edited by: Peizhi Yan
 """
+
 # Modified from smplx code for FLAME
 import torch
 import torch.nn as nn
@@ -65,13 +68,13 @@ class FLAME(nn.Module):
         self.register_buffer('parents', parents)
         self.register_buffer('lbs_weights', to_tensor(to_np(flame_model.weights), dtype=self.dtype))
 
-        # Fixing Eyeball and neck rotation
+        # Fixing head, eyeball and neck rotation
+        default_head_pose = torch.zeros([1, 3], dtype=self.dtype, requires_grad=False)
+        self.register_parameter('head_pose', nn.Parameter(default_head_pose, requires_grad=False))
         default_eyball_pose = torch.zeros([1, 6], dtype=self.dtype, requires_grad=False)
-        self.register_parameter('eye_pose', nn.Parameter(default_eyball_pose,
-                                                         requires_grad=False))
+        self.register_parameter('eye_pose', nn.Parameter(default_eyball_pose, requires_grad=False))
         default_neck_pose = torch.zeros([1, 3], dtype=self.dtype, requires_grad=False)
-        self.register_parameter('neck_pose', nn.Parameter(default_neck_pose,
-                                                          requires_grad=False))
+        self.register_parameter('neck_pose', nn.Parameter(default_neck_pose, requires_grad=False))
 
         # Static and Dynamic Landmark embeddings for FLAME
         lmk_embeddings = np.load(config.flame_lmk_embedding_path, allow_pickle=True, encoding='latin1')
@@ -173,23 +176,38 @@ class FLAME(nn.Module):
                                        self.full_lmk_bary_coords.repeat(vertices.shape[0], 1, 1))
         return landmarks3d
 
-    def forward(self, shape_params=None, expression_params=None, pose_params=None, eye_pose_params=None):
+    def forward(self, 
+                shape_params=None, 
+                expression_params=None, 
+                head_pose_params=None, 
+                jaw_pose_params=None, 
+                neck_pose_params=None, 
+                eye_pose_params=None):
         """
             Input:
-                shape_params: N X number of shape parameters
+                shape_params:      N X number of shape parameters
                 expression_params: N X number of expression parameters
-                pose_params: N X number of pose parameters (6)
+                head_pose_params:  N X 3, head rotation parameters
+                jaw_pose_params:   N X 3, jaw rotation parameters
+                neck_pose_params:  N X 3, neck rotation parameters
+                eye_pose_params:   N X 6, eye rotation parameters
             return:d
                 vertices: N X V X 3
                 landmarks: N X number of landmarks X 3
         """
         batch_size = shape_params.shape[0]
-        if eye_pose_params is None:
-            eye_pose_params = self.eye_pose.expand(batch_size, -1)
-        betas = torch.cat([shape_params, expression_params], dim=1)
-        full_pose = torch.cat([pose_params[:, :3], self.neck_pose.expand(batch_size, -1), pose_params[:, 3:], eye_pose_params], dim=1)
-        template_vertices = self.v_template.unsqueeze(0).expand(batch_size, -1, -1) # [N,V,3]
+        betas = torch.cat([shape_params, expression_params], dim=1) # shape + expression coefficients
         
+        if head_pose_params is None:
+            head_pose_params = self.head_pose.expand(batch_size, -1) # [N, 3]
+        if eye_pose_params is None:
+            eye_pose_params = self.eye_pose.expand(batch_size, -1)   # [N, 3]
+        if neck_pose_params is None:
+            neck_pose_params = self.neck_pose.expand(batch_size, -1) # [N, 3]
+
+        full_pose = torch.cat([head_pose_params, neck_pose_params, jaw_pose_params, eye_pose_params], dim=1) # [N, 15]
+        template_vertices = self.v_template.unsqueeze(0).expand(batch_size, -1, -1) # [N,V,3]
+
         # import ipdb; ipdb.set_trace()
         vertices, _ = lbs(betas, full_pose, template_vertices,
                           self.shapedirs, self.posedirs,
@@ -220,26 +238,51 @@ class FLAME(nn.Module):
 
 class FLAMETex(nn.Module):
     """
-    current FLAME texture are adapted from BFM Texture Model
+    Code from: https://github.com/yfeng95/DECA/blob/master/decalib/models/FLAME.py
+    FLAME texture:
+    https://github.com/TimoBolkart/TF_FLAME/blob/ade0ab152300ec5f0e8555d6765411555c5ed43d/sample_texture.py#L64
+    FLAME texture converted from BFM:
+    https://github.com/TimoBolkart/BFM_to_FLAME
     """
-
     def __init__(self, config):
         super(FLAMETex, self).__init__()
-        tex_params = config.tex_params
-        tex_space = np.load(config.tex_space_path)
-        texture_mean = tex_space['mean'].reshape(1, -1)
-        texture_basis = tex_space['tex_dir'].reshape(-1, 200)
+        if config.tex_type == 'BFM':
+            mu_key = 'MU'
+            pc_key = 'PC'
+            n_pc = 199
+            tex_path = config.tex_space_path
+            tex_space = np.load(tex_path)
+            texture_mean = tex_space[mu_key].reshape(1, -1)
+            texture_basis = tex_space[pc_key].reshape(-1, n_pc)
+
+        elif config.tex_type == 'FLAME':
+            mu_key = 'mean'
+            pc_key = 'tex_dir'
+            n_pc = 200
+            tex_path = config.flame_tex_path
+            tex_space = np.load(tex_path)
+            texture_mean = tex_space[mu_key].reshape(1, -1)/255.
+            texture_basis = tex_space[pc_key].reshape(-1, n_pc)/255.
+        else:
+            print('texture type ', config.tex_type, 'not exist!')
+            raise NotImplementedError
+
+        #n_tex = config.n_tex
+        n_tex = 50
         num_components = texture_basis.shape[1]
         texture_mean = torch.from_numpy(texture_mean).float()[None,...]
-        texture_basis = torch.from_numpy(texture_basis[:,:tex_params]).float()[None,...]
+        texture_basis = torch.from_numpy(texture_basis[:,:n_tex]).float()[None,...]
         self.register_buffer('texture_mean', texture_mean)
         self.register_buffer('texture_basis', texture_basis)
 
     def forward(self, texcode):
+        '''
+        texcode: [batchsize, n_tex]
+        texture: [bz, 3, 256, 256], range: 0-1
+        '''
         texture = self.texture_mean + (self.texture_basis*texcode[:,None,:]).sum(-1)
         texture = texture.reshape(texcode.shape[0], 512, 512, 3).permute(0,3,1,2)
         texture = F.interpolate(texture, [256, 256])
         texture = texture[:,[2,1,0], :,:]
         return texture
-
 
