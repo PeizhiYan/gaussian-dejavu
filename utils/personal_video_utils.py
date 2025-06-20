@@ -228,7 +228,7 @@ class PersonalDataLoader():
             # store data
             batch_data['fid'].append(fid)
             #batch_data['vertices'][i] = loaded['vertices']
-            batch_data['img'][i] = loaded['img']
+            batch_data['img'][i] = cv2.resize(loaded['img'][0], (512,512))
             batch_data['parsing'][i] = loaded['parsing'].astype(np.uint8)
             batch_data['blendshape_scores'][i] = loaded['blendshape_scores'][0]
             batch_data['shape'][i] = loaded['shape'][0,:100]
