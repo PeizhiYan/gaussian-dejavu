@@ -249,11 +249,9 @@ Because of **copyright concerns**, we cannot re-share any of the following model
   - Option 2 (from Github): https://github.com/PeizhiYan/gaussian-dejavu/releases/download/v1.1/dejavu_network.pt
 
 - (Optional: for demo) Download pre-trained avatars and extract to ```./saved_avatars/```
-  - https://github.com/PeizhiYan/gaussian-dejavu/releases/download/v1.1/imavatar-subject1-uv320-1.1.zip
-  - https://github.com/PeizhiYan/gaussian-dejavu/releases/download/v1.1/imavatar-subject2-uv320-1.1.zip
-  - https://github.com/PeizhiYan/gaussian-dejavu/releases/download/v1.1/peizhi-cartoon-uv320-v1.1.zip
   - https://github.com/PeizhiYan/gaussian-dejavu/releases/download/v1.1/peizhi-uv180-1.1.zip
-
+  - https://github.com/PeizhiYan/gaussian-dejavu/releases/download/v1.1/peizhi-cartoon-uv320-v1.1.zip
+  - https://github.com/PeizhiYan/gaussian-dejavu/releases/tag/v1.3
 
 The structure of ```./models``` should be:
 ```
