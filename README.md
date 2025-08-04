@@ -6,14 +6,15 @@
 
 
 - **Author**: Peizhi Yan
-- **Current Version**: v1.3
+- **Current Version**: v1.4
 
 > [!NOTE]
 > ### Versions:
-> - _Jun-18-2025_: In v1.3, support tracking results from ```flame-head-tracker v3.4```
-> - _Jun-09-2025_: In v1.2, support tracking results from ```flame-head-tracker v3.3```
-> - _Mar-31-2025_: v1.1 demo. We've added a pre-trained MLP network that maps FLAME expression coefficients to a lower-dimensional (10D in this demo) set of blending weights.
-> - _Mar-27-2025_: v1.0 demo. This version matches the method described in our WACV 2025 paper. Please use this version for benchmarking purpose.
+> - _Aug-03-2025_: v1.4, support tracking results from ```flame-head-tracker v4.1```
+> - _Jun-18-2025_: v1.3, support tracking results from ```flame-head-tracker v3.4```
+> - _Jun-09-2025_: v1.2, support tracking results from ```flame-head-tracker v3.3```
+> - _Mar-31-2025_: v1.1. We've added a pre-trained MLP network that maps FLAME expression coefficients to a lower-dimensional (10D in this demo) set of blending weights.
+> - _Mar-27-2025_: v1.0. This version matches the method described in our WACV 2025 paper. Please use this version for benchmarking purpose.
 
 
 ## 📺 Demo Videos (Click to Watch)
@@ -90,9 +91,10 @@ os.chdir(WORKING_DIR) # change the working directory to the project's absolute p
 
 ### Prepare Training Data
 
-Please follow https://github.com/PeizhiYan/flame-head-tracker/tree/v3.4.1 and our example [```./examples/Personal-Video-Precessing.ipynb```](./examples/Personal-Video-Processing.ipynb) to pre-process your video.
+Please follow https://github.com/PeizhiYan/flame-head-tracker/tree/v4.1 and our example [```./examples/Personal-Video-Precessing.ipynb```](./examples/Personal-Video-Processing.ipynb) to pre-process your video.
 
 > [!WARNING]
+> - ```Dejavu v1.4``` is compatible with ```flame-head-tracker v4.1```, not lower versions.
 > - ```Dejavu v1.3``` is compatible with ```flame-head-tracker v3.4```, not lower versions.
 > - ```Dejavu v1.2``` is compatible with ```flame-head-tracker v3.3```, not lower versions.
 > - ```Dejavu v1.1``` and ```Dejavu v1.0``` are compatible with ```flame-head-tracker v3.2```

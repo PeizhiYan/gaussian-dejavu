@@ -172,13 +172,15 @@ class PersonalDataLoader():
         # loop through video ids
         path_a = self.dataset_path
         for vid in os.listdir(path_a):
-            if vid.startswith('.'):
+            if vid.startswith('.') and 'texture' in vid:
+                continue
+            elif not os.path.isdir(os.path.join(path_a, vid)):
                 continue
             else:
                 self.meta_data[vid] = {}
             
             # loop through frame ids
-            path_b = os.path.join(path_a, vid)
+            path_b = os.path.join(path_a, vid)            
             for fid in os.listdir(path_b):
                 if fid.startswith('.'):
                     continue
@@ -206,8 +208,10 @@ class PersonalDataLoader():
         batch_data = {
             'vid': vid, # video id
             'fid': [],  # frame ids
-            'img': np.zeros([real_batch_size, 512, 512, 3], dtype=np.uint8),
-            'parsing':      np.zeros([real_batch_size, 512, 512], dtype=np.uint8),
+            'img':              np.zeros([real_batch_size, 512, 512, 3], dtype=np.uint8),
+            'parsing':          np.zeros([real_batch_size, 512, 512], dtype=np.uint8),
+            'img_aligned':      np.zeros([real_batch_size, 512, 512, 3], dtype=np.uint8),
+            'parsing_aligned':  np.zeros([real_batch_size, 512, 512], dtype=np.uint8),
             #'vertices': np.zeros([real_batch_size, 5023, 3], dtype=np.float32),
             'blendshape_scores':    np.zeros([real_batch_size, 52], dtype=np.float32),
             'shape':    np.zeros([real_batch_size, 100], dtype=np.float32),
@@ -218,6 +222,7 @@ class PersonalDataLoader():
             'tex':      np.zeros([real_batch_size, 50], dtype=np.float32),
             'light':    np.zeros([real_batch_size, 9, 3], dtype=np.float32),
             'cam':      np.zeros([real_batch_size, 6], dtype=np.float32),
+            'fov':      np.zeros([real_batch_size], dtype=np.float32)
         }
         
         # load batch data
@@ -230,6 +235,8 @@ class PersonalDataLoader():
             #batch_data['vertices'][i] = loaded['vertices']
             batch_data['img'][i] = cv2.resize(loaded['img'][0], (512,512))
             batch_data['parsing'][i] = loaded['parsing'].astype(np.uint8)
+            batch_data['img_aligned'][i] = cv2.resize(loaded['img_aligned'][0], (512,512))
+            batch_data['parsing_aligned'][i] = loaded['parsing_aligned'].astype(np.uint8)
             batch_data['blendshape_scores'][i] = loaded['blendshape_scores'][0]
             batch_data['shape'][i] = loaded['shape'][0,:100]
             batch_data['exp'][i] = loaded['exp'][0,:50] # we only use the first 50 expression coefficients
@@ -239,15 +246,23 @@ class PersonalDataLoader():
             batch_data['tex'][i] = loaded['tex'][0]
             batch_data['light'][i] = loaded['light'][0]
             batch_data['cam'][i] = loaded['cam'][0]
+            batch_data['fov'][i] = loaded['fov'][0]
 
-        # mask out background
+        # mask out background (as ground-truth)
         batch_data['img_masked'], batch_data['masks'] = mask_out_background(
                                                         imgs=batch_data['img'], 
                                                         parsing=batch_data['parsing'],
                                                         return_masks=True)
+
+        # mask out background (re-aligned image, as input to the reconstruction network)
+        batch_data['img_aligned_masked'] = mask_out_background(
+                                            imgs=batch_data['img_aligned'], 
+                                            parsing=batch_data['parsing_aligned'],
+                                            return_masks=False)
+    
         # convert to tensor
         for key in batch_data:
-            if key not in ['vid', 'fid', 'vertices', 'parsing']:
+            if key not in ['vid', 'fid', 'vertices', 'parsing', 'fov']:
                 batch_data[key] = torch.from_numpy(batch_data[key]).detach().to(self.device)
             
         return batch_data

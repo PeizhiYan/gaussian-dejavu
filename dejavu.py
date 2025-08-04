@@ -163,7 +163,7 @@ class GaussianDejavu():
                 # init uv maps
                 uv_maps = self.framework.create_init_uv_maps(vertices) # [N, S, S, 13]
                 # uv offsets
-                _, uv_offsets = self.framework.get_uv_offsets(batch_images=batch_data['img_masked'], uv_maps=uv_maps)  # [N, S, S, 13]
+                _, uv_offsets = self.framework.get_uv_offsets(batch_images=batch_data['img_aligned_masked'], uv_maps=uv_maps)  # [N, S, S, 13]
                 # compute mena uv offsets
                 temp = uv_offsets.mean(dim=0) # [S, S, 13]
                 if mean_uv_offsets is None: mean_uv_offsets = temp
@@ -215,7 +215,8 @@ class GaussianDejavu():
         batch_gaussians = self.framework.uv_maps_2_gaussians(uv_maps=uv_maps_new)
         # render
         batch_rendered = self.framework.render_batch_gaussians(batch_cam_poses = batch_data['cam'], 
-                                                               batch_gaussians = batch_gaussians)
+                                                               batch_gaussians = batch_gaussians, 
+                                                               batch_cam_fovs = batch_data['fov'])
         return batch_rendered
     
 
@@ -488,7 +489,7 @@ class GaussianDejavu():
         batch_gaussians = self.framework.uv_maps_2_gaussians(uv_maps=uv_maps_new)
 
         # render
-        batch_rendered = self.framework.render_batch_gaussians(batch_cam_poses = cam_pose, 
+        batch_rendered = self.framework.render_batch_gaussians(batch_cam_poses = cam_pose,
                                                                batch_gaussians = batch_gaussians,
                                                                return_all = return_all)
         

@@ -187,7 +187,7 @@ class Framework():
         else:
             return batch_gaussians
 
-    def render_batch_gaussians(self, batch_cam_poses, batch_gaussians, return_all=False):
+    def render_batch_gaussians(self, batch_cam_poses, batch_gaussians, batch_cam_fovs=None, return_all=False):
         # - batch_cam_poses: [n, 6]  torch.tensor  the 6DoF camera poses
         # returns rendered images [N, H, W, 3]   torch.tensor
 
@@ -198,7 +198,11 @@ class Framework():
             gaussians = batch_gaussians[i]
             camera_pose = batch_cam_poses[i]
             Rt = create_diff_world_to_view_matrix(camera_pose)
-            cam = PerspectiveCamera(Rt=Rt, fov=self.fov, bg=self.bg_color, image_width=self.W, image_height=self.H, 
+            if batch_cam_fovs is None:
+                fov = self.fov
+            else:
+                fov = batch_cam_fovs[i]
+            cam = PerspectiveCamera(Rt=Rt, fov=fov, bg=self.bg_color, image_width=self.W, image_height=self.H, 
                                     znear=self.znear, zfar=self.zfar)
             camera = prepare_camera(cam, self.device)
             output = render(viewpoint_camera=camera, pc=gaussians, pipe=self.pipeline, 
